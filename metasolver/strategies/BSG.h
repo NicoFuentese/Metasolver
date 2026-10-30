@@ -9,6 +9,7 @@
 #define STRATEGIES_BSG_H_
 
 #include <cmath>
+#include <functional>
 #include "../SearchStrategy.h"
 
 namespace metasolver {
@@ -93,6 +94,12 @@ public:
 	}
 
 	void set_beams(int b){beams=b;}
+
+	/**
+	 * Si se asigna, se llama con el estado final de cada greedy que el BSG ejecuta (cada uno es
+	 * una solucion completa), para que el llamador pueda recolectarlas
+	 */
+	std::function<void(const State&)> on_rollout;
 
 
 protected:

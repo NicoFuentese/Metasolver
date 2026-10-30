@@ -28,6 +28,7 @@ bool clpState::support=false;
 bool clpState::corner_support=false;
 
 double clpState::min_overlap=0.0;
+bool clpState::area_support=false;
 bool clpState::dormant_spaces=false;
 long clpState::padding=0;
 
@@ -57,6 +58,8 @@ bool clpState::box_supported(long x1, long y1, long x2, long y2, const vector<Fa
 		if(!(corners&4) && f.x1<=x1 && x1<=f.x2 && f.y1<=y2 && y2<=f.y2) corners|=4;
 		if(!(corners&8) && f.x1<=x2 && x2<=f.x2 && f.y1<=y2 && y2<=f.y2) corners|=8;
 	}
+	//criterio del area (benchmark industrial de Elhedhli et al.): al menos min_overlap de la base se apoya directamente
+	if(area_support) return direct>0 && (double) direct >= min_overlap*(double)((x2-x1)*(y2-y1));
 	if(corners==15) return true;
 	return min_overlap>0.0 && direct>0 && (double)(direct+indirect) >= min_overlap*(double)((x2-x1)*(y2-y1));
 }

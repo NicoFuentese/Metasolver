@@ -51,6 +51,7 @@ list<State*> BSG::next(list<State*>& S){
         	 delete *it;
 
              double value = greedy.run(state_copy, timelimit, begin_time);
+             if(on_rollout) on_rollout(state_copy);
 
 
             //best_state update

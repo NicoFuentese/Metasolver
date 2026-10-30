@@ -165,6 +165,10 @@ public:
 	static double min_overlap;
 	static long padding;
 
+	//con corner_support, el unico criterio es que al menos min_overlap del area de la base se apoye
+	//directamente en cajas (no se aceptan las cuatro esquinas apoyadas con menos area)
+	static bool area_support;
+
 	//los espacios sin apoyo quedan sin considerar hasta la siguiente insercion (si no,
 	//se eliminan)
 	static bool dormant_spaces;
