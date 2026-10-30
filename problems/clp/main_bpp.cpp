@@ -26,6 +26,9 @@
 #include "Greedy.h"
 #include "DoubleEffort.h"
 #include "BSG.h"
+#ifdef BSG_HIGHS
+#include "Highs.h"
+#endif
 
 using namespace std;
 using namespace clp;
@@ -381,6 +384,115 @@ static double sum_squares(const vector<Load>& loads){
 	return s;
 }
 
+//bins distintos (por cantidades de cada tipo) generados en la construccion y el SWO (con --pool o --milp)
+static map< vector<int>, Load > bin_pool;
+static bool keep_pool=false;
+
+/** archivo de columnas: tipos de caja (con las cajas de cada tipo en el archivo de la instancia) */
+static void write_types(ostream& out, const vector<int>& total){
+	out << "types " << clpState::types.size() << " " << bin.L << " " << bin.W << " " << bin.H << endl;
+	for(size_t t=0; t<clpState::types.size(); t++){
+		const BoxShape* b=clpState::types[t];
+		out << t << " " << b->getL(0) << " " << b->getW(0) << " " << b->getH(0) << " " << total[t];
+		for(int i : type_items[t]) out << " " << i;
+		out << endl;
+	}
+}
+
+/** una columna: el contenedor con sus cajas ubicadas; mult = veces que aparece en la solucion final */
+static void write_bin(ostream& out, const Load& ld, int mult){
+	out << "bin " << mult << " " << ld.placed.size() << " " << ld.volume << endl;
+	for(const Block::PlacedBox& b : ld.placed)
+		out << b.type << " " << b.xmin << " " << b.ymin << " " << b.zmin << " "
+			<< b.xmax-b.xmin << " " << b.ymax-b.ymin << " " << b.zmax-b.zmin << endl;
+}
+
+#ifdef BSG_HIGHS
+/**
+ * Recombinacion por cobertura de conjuntos (set covering): elige, entre todos los contenedores distintos
+ * generados (bin_pool, mas los de la solucion), los que cubren las cajas con el menor numero de
+ * contenedores (MILP, HiGHS). La mejor solucion actual es el punto de partida (warm start). Las cajas
+ * que quedan cubiertas de mas se sacan de los ultimos contenedores elegidos (quitar una caja no hace
+ * infactible un contenedor: no hay restricciones de soporte). Retorna true si loads mejora.
+ */
+static bool milp_cover(vector<Load>& loads, const vector<int>& total, double tlim, size_t& n_cols, double& t_milp){
+	map< vector<int>, int > in_best;
+	for(const Load& ld : loads){ bin_pool.emplace(ld.boxes, ld); in_best[ld.boxes]++; }
+	vector<const Load*> cols;
+	vector<double> x0;
+	for(const auto& kv : bin_pool){
+		if(none(kv.first)) continue;
+		cols.push_back(&kv.second);
+		map< vector<int>, int >::const_iterator it=in_best.find(kv.first);
+		x0.push_back((it==in_best.end())? 0.0 : it->second);
+	}
+	const int m=cols.size(), nt=total.size();
+	n_cols=m;
+
+	HighsModel model;
+	HighsLp& lp=model.lp_;
+	lp.num_col_=m; lp.num_row_=nt;
+	lp.col_cost_.assign(m, 1.0);
+	lp.col_lower_.assign(m, 0.0);
+	lp.col_upper_.assign(m, kHighsInf);
+	lp.row_lower_.assign(total.begin(), total.end());
+	lp.row_upper_.assign(nt, kHighsInf);
+	//matriz por columnas (start_ ya trae el primer 0 de HiGHS: se reinicia explicitamente)
+	lp.a_matrix_.format_=MatrixFormat::kColwise;
+	lp.a_matrix_.num_col_=m; lp.a_matrix_.num_row_=nt;
+	lp.a_matrix_.start_.clear(); lp.a_matrix_.index_.clear(); lp.a_matrix_.value_.clear();
+	lp.a_matrix_.start_.push_back(0);
+	for(int j=0; j<m; j++){
+		for(int t=0; t<nt; t++) if(cols[j]->boxes[t]>0){
+			lp.a_matrix_.index_.push_back(t);
+			lp.a_matrix_.value_.push_back(cols[j]->boxes[t]);
+		}
+		lp.a_matrix_.start_.push_back(lp.a_matrix_.index_.size());
+	}
+	lp.integrality_.assign(m, HighsVarType::kInteger);
+
+	Highs highs;
+	highs.setOptionValue("output_flag", false);
+	highs.setOptionValue("threads", 1);
+	highs.setOptionValue("time_limit", max(tlim, 0.05));
+	if(highs.passModel(model)!=HighsStatus::kOk) return false;
+	HighsSolution start;
+	start.col_value=x0;
+	highs.setSolution(start);
+	clock_t t0=clock();
+	highs.run();
+	t_milp=double(clock()-t0)/CLOCKS_PER_SEC;
+	const vector<double>& x=highs.getSolution().col_value;
+	if(getenv("BPP_DEBUG")) cerr << "milp status " << highs.modelStatusToString(highs.getModelStatus()) << " obj " << highs.getInfo().objective_function_value
+		<< " cols " << m << " sol " << x.size() << endl;
+	if((int)x.size()!=m) return false;
+
+	vector<Load> bins;
+	for(int j=0; j<m; j++)
+		for(long k=0, n=llround(x[j]); k<n; k++) bins.push_back(*cols[j]);
+	for(int t=0; t<nt; t++){
+		int have=0;
+		for(const Load& b : bins) have+=b.boxes[t];
+		int ex=have-total[t];
+		if(ex<0) return false;
+		for(int i=(int)bins.size()-1; i>=0 && ex>0; i--){
+			Load& b=bins[i];
+			for(int q=(int)b.placed.size()-1; q>=0 && ex>0; q--)
+				if(b.placed[q].type==t){ b.placed.erase(b.placed.begin()+q); b.boxes[t]--; ex--; }
+		}
+	}
+	vector<Load> res;
+	for(Load& b : bins){
+		if(b.placed.empty()) continue;
+		b.volume=volume_of(b.boxes);
+		res.push_back(b);
+	}
+	if(res.size()>=loads.size()) return false;
+	loads=res;
+	return true;
+}
+#endif
+
 int main(int argc, char** argv){
 
 	args::ArgumentParser parser("********* BSG-BPP *********.", "BSG Solver for the 3D bin packing problem (identical bins).");
@@ -401,6 +513,9 @@ int main(int argc, char** argv){
 	args::ValueFlag<double> _swo_rate(parser, "double", "Increase of the profit of the boxes of the least loaded bins. Default: 0.3", {"swo_rate"});
 	args::ValueFlag<int> _inst(parser, "int", "Instance in files with several instances (from 1). Default: 1", {'i'});
 	args::ValueFlag<string> _columns(parser, "string", "Write the bins generated in the construction and the squeaky wheel optimization (boxes of each type) to this file", {"columns"});
+	args::ValueFlag<int> _seed(parser, "int", "Seed of the random numbers (noise of the squeaky wheel optimization, random ruin). Default: 1", {"seed"});
+	args::ValueFlag<string> _pool(parser, "string", "Write the distinct bins generated (with their boxes placed; the ones of the final solution are marked) to this file", {"pool"});
+	args::ValueFlag<double> _milp(parser, "double", "After the search, recombine all the distinct bins generated with a set covering MILP (HiGHS, warm start with the best solution): time limit of the MILP (seconds, in addition to -T). Default: 0 (disabled). Needs the build with HiGHS", {"milp"});
 	args::Flag _rot(parser, "rot", "The boxes can be rotated (6 orientations). Default: fixed orientation", {"rot"});
 	args::Flag _corner_anchor(parser, "corner_anchor", "Anchor each space at its closest corner of the bin (default: at the origin)", {"corner_anchor"});
 	args::Flag _scratch(parser, "scratch", "Insertion of boxes also with a reload from scratch of each bin", {"scratch"});
@@ -438,6 +553,12 @@ int main(int argc, char** argv){
 	P.fix_knapsack=true;
 	double total_time=(_total_time)? _total_time.Get() : 60.0;
 	Params Pi=P; Pi.time=P.time*((_improve_time)? _improve_time.Get() : 1.0);
+	rng.seed((_seed)? _seed.Get() : 1);
+	double milp_time=(_milp)? _milp.Get() : 0.0;
+#ifndef BSG_HIGHS
+	if(milp_time>0){ cerr << "ERROR: --milp needs the build with HiGHS (cmake finds the package highs)" << endl; return 1; }
+#endif
+	keep_pool=(bool) _pool || milp_time>0;
 
 	clpState::support=false;
 	clpState::cog_penalty=0.0;
@@ -471,6 +592,7 @@ int main(int argc, char** argv){
 			Load ld=load_bsg(rest, P);
 			if(none(ld.boxes)){ cerr << "ERROR: a box does not fit in the bin" << endl; exit(1); }
 			for(size_t t=0; t<rest.size(); t++) rest[t]-=ld.boxes[t];
+			if(keep_pool) bin_pool.emplace(ld.boxes, ld);
 			res.push_back(ld);
 		}
 		return res;
@@ -564,6 +686,18 @@ int main(int argc, char** argv){
 		if(!improved && !stage_ruin) break;
 	}
 
+	//recombinacion por cobertura de conjuntos de todos los contenedores generados
+	string milp_info;
+#ifdef BSG_HIGHS
+	if(milp_time>0 && !_no_improve){
+		size_t n_cols=0; double t_milp=0.0;
+		bool better=milp_cover(loads, total, milp_time, n_cols, t_milp);
+		ostringstream os;
+		os << "milp cols " << n_cols << " bins " << loads.size() << " improved " << (better? 1 : 0) << " t_milp " << t_milp;
+		milp_info=os.str();
+	}
+#endif
+
 	double time=elapsed();
 	bool feasible=check(loads, total);
 	for(const Load& ld : loads) feasible = feasible && ld.feasible;
@@ -577,6 +711,19 @@ int main(int argc, char** argv){
 		<< " t_construction " << t_constr << " time " << time << endl;
 	cout << "stats swo " << st_swo << " elim " << st_elim << " partial " << st_partial << " tries " << st_tries
 		<< " ruin " << st_ruin << " scratch " << st_scratch << " bsg_calls " << st_bsg << endl;
+	if(!milp_info.empty()) cout << milp_info << endl;
+
+	if(_pool){
+		map< vector<int>, int > in_best;
+		for(const Load& ld : loads){ bin_pool.emplace(ld.boxes, ld); in_best[ld.boxes]++; }
+		ofstream out(_pool.Get().c_str());
+		write_types(out, total);
+		out << "bins " << bin_pool.size() << endl;
+		for(const auto& kv : bin_pool){
+			map< vector<int>, int >::const_iterator it=in_best.find(kv.first);
+			write_bin(out, kv.second, (it==in_best.end())? 0 : it->second);
+		}
+	}
 
 	if(_output){
 		ofstream out(_output.Get().c_str());

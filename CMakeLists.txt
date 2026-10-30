@@ -29,6 +29,17 @@ add_executable(BSG_CLP problems/clp/main_clp.cpp ${CLP_SOURCES})
 add_executable(BSG_ULD problems/clp/main_uld.cpp ${CLP_SOURCES})
 add_executable(BSG_BPP problems/clp/main_bpp.cpp ${CLP_SOURCES})
 
+# Opcional: recombinacion por cobertura de conjuntos (--milp) con HiGHS (https://highs.dev, licencia MIT).
+# Sin HiGHS, BSG_BPP compila igual pero sin la opcion --milp.
+find_package(highs CONFIG QUIET)
+if(highs_FOUND)
+  target_link_libraries(BSG_BPP highs::highs)
+  target_compile_definitions(BSG_BPP PRIVATE BSG_HIGHS)
+  message(STATUS "HiGHS found: BSG_BPP built with --milp")
+else()
+  message(STATUS "HiGHS not found: BSG_BPP built without --milp")
+endif()
+
 enable_testing()
 add_test(NAME br7 COMMAND BSG_CLP ${CMAKE_CURRENT_SOURCE_DIR}/problems/clp/benchs/BR/BR7.txt -i 0 -t 2)
 add_test(NAME uld50 COMMAND BSG_ULD ${CMAKE_CURRENT_SOURCE_DIR}/problems/clp/benchs/ULD/Final_instances/n50sample0.csv -t 0.5)
