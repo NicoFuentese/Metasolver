@@ -1,0 +1,50 @@
+% Apendice del paper de bin packing 3D: resultados por clase y tamano (clases 1 y 4-8, orientacion fija).
+% Las filas se generaron con un script a partir de la tabla del README (promedios de 3 semillas, redondeados a 0.1).
+\providecommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\section{Results by class and size}
+\label{app:cells}
+
+Table~\ref{tab:e-cells} gives, for each class and size, the sum of the ten instances. The columns of our
+configurations are the mean of three seeds, rounded to one decimal; the totals in the last row are computed with unrounded values. \cfgfast{} and \cfgbal{} come from the repetition of November 2026 (stored result files); $\dagger$: the column of \cfgqual{} comes from an earlier campaign whose raw files were lost. The other methods are the
+totals published by \citet{Goncalves2013} (Table~8 of their article; averages times ten):
+BRKGA, GVND \citep{Parreno2010}, TS2P \citep{Crainic2009} and GLS \citep{Faroe2003}. LB is the sum of the lower bounds given in the header of each instance file (6852 in total;
+the bound computed by our program, which is the maximum of the continuous bound and the bounds $L_1$ and $L_2$ of \citet{Martello2000}, adds up to 6837 on the same instances).
+
+\begin{table}[htbp]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Total bins per class and size, 240 original instances, fixed orientation.}
+\label{tab:e-cells}
+\begin{tabular}{@{}rrrrrrrrrr@{}}
+\toprule
+Class & $n$ & LB & BRKGA & GVND & TS2P & GLS & \cfgfast{} & \cfgbal{} & \cfgqual{}\\
+\midrule
+1 & 50 & 125 & 134 & 134 & 134 & 134 & 134 & 134 & 134 \\
+1 & 100 & 251 & 266 & 266 & 267 & 267 & 265.7 & 265.3 & 265.7 \\
+1 & 150 & 347 & 364 & 364 & 370 & 370 & 363.7 & 363 & 363 \\
+1 & 200 & 484 & 508 & 509 & 511 & 512 & 507 & 507 & 507 \\
+4 & 50 & 289 & 294 & 294 & 294 & 294 & 294 & 294 & 294 \\
+4 & 100 & 576 & 590 & 590 & 589 & 590 & 590 & 590 & 590 \\
+4 & 150 & 852 & 868 & 868 & 868 & 868 & 868 & 868 & 868 \\
+4 & 200 & 1163 & 1188 & 1188 & 1188 & 1190 & 1188 & 1188 & 1188 \\
+5 & 50 & 74 & 83 & 83 & 83 & 83 & 83 & 83 & 83 \\
+5 & 100 & 129 & 150 & 150 & 152 & 151 & 150 & 149.7 & 149.3 \\
+5 & 150 & 174 & 200 & 201 & 201 & 202 & 199 & 199.3 & 199 \\
+5 & 200 & 244 & 271 & 271 & 274 & 272 & 270 & 270 & 270 \\
+6 & 50 & 91 & 97 & 98 & 98 & 98 & 98 & 98 & 98 \\
+6 & 100 & 175 & 189 & 190 & 191 & 191 & 188.3 & 188.7 & 188.3 \\
+6 & 150 & 269 & 290 & 292 & 292 & 294 & 291.3 & 291.3 & 290.3 \\
+6 & 200 & 350 & 373 & 374 & 377 & 377 & 373 & 373 & 372.3 \\
+7 & 50 & 64 & 74 & 74 & 74 & 74 & 74 & 74 & 74 \\
+7 & 100 & 109 & 122 & 125 & 123 & 123 & 123 & 123.3 & 123 \\
+7 & 150 & 137 & 153 & 160 & 158 & 158 & 153 & 153 & 152.7 \\
+7 & 200 & 210 & 234 & 235 & 235 & 235 & 234 & 234 & 234 \\
+8 & 50 & 83 & 92 & 92 & 92 & 92 & 92 & 92 & 92 \\
+8 & 100 & 176 & 189 & 189 & 188 & 189 & 189 & 189 & 189 \\
+8 & 150 & 213 & 236 & 241 & 239 & 239 & 234 & 234.3 & 234 \\
+8 & 200 & 267 & 293 & 298 & 300 & 299 & 294.7 & 294 & 291.3 \\
+\midrule
+Total & & 6852 & 7258 & 7286 & 7298 & 7302 & 7256.7 & 7256.0 & 7250.0$^\dagger$\\
+\bottomrule
+\end{tabular}
+\end{table}
