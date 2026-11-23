@@ -9,6 +9,8 @@ dir=$1; seeds=$2; procs=$3
 root=$(cd "$(dirname "$0")/../../.." && pwd)
 export BSG_BIN=${BSG_BIN:-$root/build/BSG_BPP} ROOT=$root DIR=$dir
 mkdir -p "$dir/out" "$dir/sol"
+# version: commit y md5 del ejecutable (se agregan si cambian entre reanudaciones)
+echo "$(date -Iseconds) commit $(git -C "$root" rev-parse --short HEAD) md5 $(md5sum "$BSG_BIN" | cut -d' ' -f1)" >> "$dir/version.txt"
 [ -f "$dir/runs.csv" ] || echo "config,seed,instance,class,n,i,bins,lb,construction,swo,time,milp_improved,valid" > "$dir/runs.csv"
 
 # configuraciones (Balanced: T=20 s, t=0.005 s)

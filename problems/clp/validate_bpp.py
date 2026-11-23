@@ -2,8 +2,10 @@
 """
 Validador independiente de soluciones del 3D-BPP (no comparte codigo con BSG_BPP).
 Revisa: cada caja de la instancia cargada exactamente una vez, dimensiones de una orientacion
-permitida (fija, o las 6 con --rot), dentro del contenedor y sin intersecciones.
-uso: validate_bpp.py <instancia> <solucion> [--rot] [-i k]
+permitida (fija, o las 6 con --rot), dentro del contenedor y sin intersecciones. Con --support f, ademas,
+que al menos la proporcion f del area de la base de cada caja que no esta en el piso se apoye directamente
+en las caras superiores de otras cajas del mismo contenedor (criterio de area, f=0.7 en el paper).
+uso: validate_bpp.py <instancia> <solucion> [--rot] [-i k] [--support f]
 (-i: instancia k, desde 1, en los archivos de Martello, Pisinger y Vigo con varias instancias)
 Imprime el numero de contenedores o termina con error.
 """
@@ -14,6 +16,7 @@ def main():
     inst, sol = sys.argv[1], sys.argv[2]
     rot = "--rot" in sys.argv
     k = int(sys.argv[sys.argv.index("-i") + 1]) if "-i" in sys.argv else 1
+    sup = float(sys.argv[sys.argv.index("--support") + 1]) if "--support" in sys.argv else None
     rows = [list(map(int, l.split())) for l in open(inst) if l.strip()]
     r = 0
     while len(rows[r]) != 4 or (r > 0 and len(rows[r - 1]) == 3 and rows[r - 1][0] != k):
@@ -39,6 +42,20 @@ def main():
                 p, q = P[i], P[j]
                 if all(p[k] < q[k + 3] and q[k] < p[k + 3] for k in range(3)):
                     raise AssertionError(f"bin {b}: boxes overlap")
+    if sup is not None:
+        for b, P in bins.items():
+            for p in P:
+                if p[2] == 0:
+                    continue
+                area = 0
+                for q in P:
+                    if q is not p and q[5] == p[2]:
+                        dx = min(p[3], q[3]) - max(p[0], q[0])
+                        dy = min(p[4], q[4]) - max(p[1], q[1])
+                        if dx > 0 and dy > 0:
+                            area += dx * dy
+                base = (p[3] - p[0]) * (p[4] - p[1])
+                assert area >= sup * base - 1e-9, f"bin {b}: box at {p[:3]} supported on {area / base:.3f} of its base"
     print(len(bins))
 
 if __name__ == "__main__":

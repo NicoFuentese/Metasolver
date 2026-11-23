@@ -1,0 +1,8 @@
+Ablacion de BSG_BPP con el protocolo del paper (iniciada el 2026-11-23).
+commit del codigo de BSG_BPP: c5c33da (main_bpp.cpp sin cambios respecto de ese commit al compilar)
+md5 del ejecutable: 0ac1e6ade4b3af316197bfe03a5ac903
+compilacion: g++ (Ubuntu), cmake -DCMAKE_BUILD_TYPE=Release, HiGHS 1.15.1 (estatico)
+maquina: contenedor Linux en la nube, 4 nucleos, 4 corridas en paralelo
+nota: en este ejecutable los limites T y T_milp se miden con clock() (tiempo de CPU en Linux)
+comando: BSG_BIN=<ejecutable> problems/clp/experiments/run_ablation.sh results/bpp/ablation_2026-11 "1 2 3" 4
+2026-11-23 18:35 UTC: la corrida harvest s1 c4_100_9 termino con 'ERROR: a box does not fit in the bin' (BSG no completo ningun greedy en tau=0.005 s; ver commit del arreglo). Se borro su fila y se reejecuto con el mismo ejecutable. El contenedor se reinicio a las 18:23 UTC y la campana se reanudo desde las filas guardadas.

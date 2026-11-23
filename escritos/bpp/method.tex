@@ -148,7 +148,9 @@ change the result of the search.
 In what follows, $\textsc{LoadBin}(R,p,\tau)$ denotes one such search of $\tau$ seconds over the multiset
 of boxes $R$ with box profits $p$. It returns a load, its pattern $a\le R$, and the positions of
 its boxes. The time $\tau$ covers the search and not the generation of the blocks, which costs a
-fixed overhead of the order of two milliseconds per call.
+fixed overhead of the order of two milliseconds per call. With very short limits BSG may end before completing
+any greedy run; in that case one greedy run is completed without time limit, so that \textsc{LoadBin} always returns
+a non-empty load when some box fits.
 
 \subsection{Sequential construction with box profits}
 \label{sec:m-construct}
@@ -400,10 +402,7 @@ squeaky wheel loop, which builds the incumbent and fills the pool; Phase 2 spend
 $T_{\mathrm{milp}}$ on the recombination. The time limits are independent, so the total running time
 is about $T+T_{\mathrm{milp}}$, less when the lower bound is reached in Phase 1 or the pool bound
 stops Phase 2. The result is checked box by box before it is reported.
-\pend{The code runs the recombination also when $|S^*|=\mathrm{LB}$ (harmless, the first LP proves it); align
-Algorithm~\ref{alg:overall} and the code. The code also flips the sign of the duals and clips the negative ones
-without recomputing $z$: check that Proposition~\ref{prop:fix} is applied with exact optimal duals, or take the
-reduced costs directly from the solver.}
+The reduced costs used for the fixing are those that the LP solver returns at the optimum.
 
 \begin{algorithm}[t]
 \caption{Overall method}
