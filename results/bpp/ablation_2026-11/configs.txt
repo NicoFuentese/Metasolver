@@ -1,0 +1,7 @@
+constr_k1 -t 0.005 -T 20 --kappa 1 --no_improve
+constr_k2 -t 0.005 -T 20 --no_improve
+swo_rho0 -t 0.005 -T 20 --swo_rate 0
+swo -t 0.005 -T 20
+swo_T26 -t 0.005 -T 26
+recomb -t 0.005 -T 20 --milp 60
+harvest -t 0.005 -T 20 --milp 60 --harvest 10
