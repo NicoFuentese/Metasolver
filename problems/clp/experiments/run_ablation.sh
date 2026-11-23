@@ -35,7 +35,7 @@ run_job(){
 		v=$(python3 -I "$ROOT/problems/clp/validate_bpp.py" "$f" "$DIR/sol/$key.csv" -i "$i" 2>&1 | tail -1)
 		awk -v cfg=$cfg -v s=$seed -v name=$name -v c=$c -v n=$n -v i=$i -v v="$v" '
 			/^n_bins/{b=$2; lb=$4; co=$6; sw=$8; t=$12}
-			/^milp/{m=$6}
+			/^milp/{m=$7}
 			END{print cfg","s","name","c","n","i","b","lb","co","sw","t","(m==""?"":m)","v}' "$DIR/out/$key.out" >> "$DIR/runs.csv"
 	done < "$DIR/configs.txt"
 }

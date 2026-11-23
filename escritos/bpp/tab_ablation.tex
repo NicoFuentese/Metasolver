@@ -1,0 +1,14 @@
+\begin{tabular}{@{}lrrrrrrrl@{}}
+\toprule
+Configuration & Seed 1 & Seed 2 & Seed 3 & Mean & Time (s) & Diff. & Better/worse & $p$\\
+\midrule
+Construction, $\kappa=2$ & 7383 & 7383 & 7384 & 7383.3 & 0.1 & --- & --- & ---\\
+$\ast$ Construction, $\kappa=1$ & 7592 & 7589 & 7601 & 7594.0 & 0.1 & +210.7 & 6/160 & $3\cdot 10^{-27}$\\
++ squeaky wheel loop ($T=20$) & 7272 & 7274 & 7271 & 7272.3 & 18.8 & -111.0 & 112/0 & $2\cdot 10^{-22}$\\
+$\ast$ squeaky wheel without learning ($\rho=0$) & 7310 & 7302 & 7307 & 7306.3 & 18.9 & +34.0 & 1/52 & $6\cdot 10^{-10}$\\
+$\ast$ squeaky wheel loop, $T=26$ (matched time) & 7272 & 7270 & 7270 & 7270.7 & 24.3 & -1.7 & 9/5 & 0.31\\
++ recombination ($T_{\mathrm{milp}}=60$) & 7256 & 7257 & 7256 & 7256.3 & 23.9 & -14.3 & 20/1 & $7\cdot 10^{-5}$\\
++ harvest ($K=10$, \cfgbal{}) & 7256 & 7252 & 7254 & 7254.0 & 25.7 & -2.3 & 8/5 & 0.40\\
+\bottomrule
+\end{tabular}
+% 240 instances, seeds [1, 2, 3]; reference of each row: constr_k1 vs constr_k2, swo vs constr_k2, swo_rho0 vs swo, swo_T26 vs swo, recomb vs swo_T26, harvest vs recomb
