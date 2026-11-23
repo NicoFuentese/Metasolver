@@ -1,22 +1,22 @@
-% Seccion de experimentos del paper de bin packing 3D (BSG_BPP).
-% Requiere en el preambulo (ademas de lo de method.tex): \usepackage{pgfplots}, \pgfplotsset{compat=1.16}
-% Todas las cifras salen de AGENTS.md (secciones 14-24) y del README; \todo marca lo pendiente.
-\providecommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+% Seccion de experimentos del paper de bin packing 3D (BSG_BPP), organizada por preguntas.
+% Las cifras vienen de AGENTS.md (secciones 14-24) y del README; \pend marca lo pendiente.
+\providecommand{\pend}[1]{\textcolor{red}{[PENDING: #1]}}
 
 \section{Computational experiments}
 \label{sec:experiments-bpp}
 
-This section evaluates the method on the instances of \citet{Martello2000} with fixed
-orientation and with rotations, and on industrial instances that require vertical support.
-Section~\ref{sec:e-setup} describes the instances, the machine and the protocol.
-Section~\ref{sec:e-mpv} gives the main results without rotations,
-Section~\ref{sec:e-heldout} the results on instances that were not used to choose anything,
-Section~\ref{sec:e-ablation} the contribution of each component,
-Section~\ref{sec:e-recomb} the behaviour of the recombination,
-Section~\ref{sec:e-rot} the results with rotations,
-Section~\ref{sec:e-ind} the industrial instances and Section~\ref{sec:e-scale} the limits on
-large instances. Section~\ref{sec:e-negative} lists the variants that we discarded and
-Section~\ref{sec:e-discussion} states what the evidence supports and where it is weak. All the solutions reported were checked by an independent validator.
+The experiments answer the following questions. How does the method compare with the literature on the
+benchmark of \citet{Martello2000} with fixed orientation (Section~\ref{sec:e-mpv}) and with rotations
+(Section~\ref{sec:e-rot})? What does each component contribute (Section~\ref{sec:e-ablation})? How does the
+recombination behave, and when is the LP of the pool enough (Section~\ref{sec:e-recomb})? Do the effects hold on
+instances that were not used to design the method (Section~\ref{sec:e-heldout})? Does the same pipeline work with
+vertical support (Section~\ref{sec:e-ind})? Where are its limits (Section~\ref{sec:e-scale})?
+Section~\ref{sec:e-setup} describes the instances, the machine and the protocol, and
+Section~\ref{sec:e-discussion} states what the evidence supports and where it is weak. The variants that we tried
+and discarded are listed in Appendix~\ref{app:negative}. All the solutions reported were checked by an independent validator.
+\pend{Generate every table and figure of this section with a script from the raw result files, instead of
+transcribing the numbers from the project notes.}
+
 
 \paragraph{Summary of the results.}
 Table~\ref{tab:e-summary} collects the main figures against the best totals that we found in the literature for each setting. Without rotations the method is at the level of the
@@ -109,6 +109,9 @@ program. The time reported is the wall-clock time measured with the C function
 \texttt{clock}, which on Windows is not CPU time; it includes the search, the recombination
 and the generation of blocks. The time limit $T$ is checked between constructions
 (Section~\ref{sec:m-swo}), so a run can exceed it by the duration of one construction.
+\pend{On Linux \texttt{clock} measures CPU time, not wall-clock time: switch the code to
+\texttt{std::chrono::steady\_clock} or state the platform dependence. Also give the LP of the pool a time limit
+(today only the MILP has one, so the recombination can exceed $T_{\mathrm{milp}}$).}
 
 \paragraph{Conditions of the campaigns.}
 Because the time limits are wall-clock limits, the amount of search that a run receives depends on the load of the machine, and the totals of two campaigns run under different loads
@@ -132,7 +135,7 @@ Tables~\ref{tab:e-main}, \ref{tab:e-within}, \ref{tab:e-time} and \ref{tab:e-har
 \addlinespace
 Tables~\ref{tab:e-summary}, \ref{tab:e-main} and \ref{tab:e-budget} (\cfgqual{}) & 240 original & \cfgqual{} & 1--3 & 4 & kept\\
 \addlinespace
-Table~\ref{tab:e-recomb} & 128 generated (second blind set) & \cfgfast{}, \cfgfast{} without harvest, \cfgbal{}, \cfgbal{} with plain MILP, squeaky wheel alone & 1 & \todo{?} & kept\\
+Table~\ref{tab:e-recomb} & 128 generated (second blind set) & \cfgfast{}, \cfgfast{} without harvest, \cfgbal{}, \cfgbal{} with plain MILP, squeaky wheel alone & 1 & \pendshort{?} & kept\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -143,24 +146,28 @@ effect of the clock on BSG. We report the total number of bins over the instance
 (1--3) are used for the configurations on the 240 original instances, on the first blind set and, for the shorter configurations, on classes 2 and 3 (the configuration of 33 s uses five seeds there); the ablation uses two seeds, and the second blind set and several budgets use a single seed, which
 we indicate in each table. Two configurations are compared by the number of instances in which each is better and by the two-sided Wilcoxon signed-rank test on the differences in bins per instance. When
 a single $p$-value is given for several seeds, it is computed on the mean of each instance over the seeds; otherwise the seed is indicated.
+\pend{Declare which tests are confirmatory (samples independent of the design) and which are exploratory, or
+correct for multiple comparisons (Holm). Add the raw files of the campaigns of November 2026 (\cfgfast{},
+\cfgbal{}, \cfgqual{}) to the repository: they are cited as stored but are not in \texttt{results/bpp}, and record
+the commit and the checksum of the executable of every campaign.}
 
 The $p$-values and standard deviations of the repetition of \cfgfast{}, \cfgfast{} without harvest and \cfgbal{} on the 240 original instances (three seeds, four runs in parallel, no invalid solution and no error) were computed from its stored files.
 For the earlier campaigns, those whose files were kept (classes 2 and 3, the first set of generated instances, the prototype run on the original instances in Table~\ref{tab:e-milp} and the experiment on large instances) were recomputed in the same way, and the
 others come from the first analysis of each campaign because the raw files were lost (the first blind set, the rotations with three seeds and the ablation). \cfgqual{} on the original instances was also repeated (three seeds, four runs in parallel, no invalid solution and no error) and its figures come from its stored files. The controls without recombination
 (``squeaky wheel alone'') use the same code with a time limit $T$ equal to the mean time of the configuration they are compared with.
-\todo{repeat the rotation campaigns and the ablation saving the raw files, or keep this caveat}
+\pend{repeat the rotation campaigns and the ablation saving the raw files, or keep this caveat}
 
 \paragraph{Reproducibility.}
 Every run has the form
 \begin{center}\small\texttt{BSG\_BPP <instance file> -i <k> --seed <s> -o <solution file>}\end{center}
 followed by the options of Table~\ref{tab:e-commands}, where $k$ selects the instance inside the file and the seed
-controls the noise of the squeaky wheel loop and the random choices of the improvement phase (the default is 1). \cfgqual{} keeps the default $t=0.02$ s, and \texttt{--rot} is added when the six orientations are allowed. The controls without recombination use the same command with \texttt{--milp} removed and $T$ set to the
+controls the noise of the squeaky wheel loop and the random choices of the improvement phase (the default is 1). \cfgqual{} keeps the default $\tau=0.02$ s, and \texttt{--rot} is added when the six orientations are allowed. The controls without recombination use the same command with \texttt{--milp} removed and $T$ set to the
 time indicated. The files of the industrial instances are converted to the input format of the program, whose first line gives the number
 of boxes and the dimensions of the pallet (1200, 800 and 2055).
 The program is compiled with g++ 16.2 at \texttt{-O3} in the UCRT64 environment of MSYS2 and linked with HiGHS 1.15.1. Every solution is checked by a Python script that shares no code with the solver
 (\texttt{validate\_bpp.py} in the repository, which verifies that the boxes lie inside the bin, do not intersect and that every box appears exactly once, with rotations when applicable) and,
 for the industrial instances, by a second script that also verifies the support of every box
-(\todo{add the support validator, the conversion of the industrial instances and the scripts that run the campaigns to the repository or to a supplementary file}).
+(\pend{add the support validator, the conversion of the industrial instances and the scripts that run the campaigns to the repository or to a supplementary file}).
 
 \begin{table}[t]
 \centering
@@ -189,8 +196,10 @@ with rotation the time per instance goes from a few seconds to under 1000 s), th
 (Intel i7-5500U at 2.4~GHz, 3.17 s per instance on average), together with the other methods in Table~8 of
 \citet{Goncalves2013}. The numbers are the sums over cells of the published averages times ten. The machines
 and the number of runs differ from ours, so the times are not comparable one to one.
-
-\subsection{Main results without rotation}
+\pend{Normalise the times of BRKGA, SD and LCGA with the single-thread rating of their processors
+\citep{PassMark}, as in Section~\ref{sec:e-ind}, and mark them in Figure~\ref{fig:e-curve}. Ask the authors of
+\citet{Goncalves2013} and \citet{Mahvash2018} for results per instance, which would allow paired tests.}
+\subsection{Comparison with the literature, fixed orientation}
 \label{sec:e-mpv}
 
 Table~\ref{tab:e-main} compares three configurations of the method (Table~\ref{tab:configs}) with the
@@ -279,7 +288,7 @@ whose times are not comparable.}
 \centering
 \small\setlength{\tabcolsep}{3pt}
 \caption{Budgets on the 240 original instances (classes 1 and 4--8). $T$, $T_{\mathrm{milp}}$: time limits of the search and
-the recombination; $K$: harvest; $t=0.005$ s for the rows with harvest and $t=0.02$ s for the others. The last column is the squeaky wheel
+the recombination; $K$: harvest; $\tau=0.005$ s for the rows with harvest and $\tau=0.02$ s for the others. The last column is the squeaky wheel
 loop alone with a time limit equal to the mean time of the row. The first, third and seventh rows were repeated in November 2026; the other
 rows come from earlier campaigns with two to five runs in parallel (see Section~\ref{sec:e-setup}).}
 \label{tab:e-budget}
@@ -305,6 +314,149 @@ instances and better in 2, $p=0.18$), which agrees with the explanation that a l
 limit. Second, the runs with one seed are subject to the variation between seeds, whose standard
 deviation on the total is 0.6, 1.0 and 1.2 bins for \cfgfast{}, \cfgbal{} and \cfgqual{} (and 3.5 for \cfgfast{} without the harvest, in the repetition); as noted above, the variation
 between campaigns can be larger than that.
+\paragraph{Time per instance.}
+The limits $T$ and $T_{\mathrm{milp}}$ bound the time of the two phases but the totals vary, so Table~\ref{tab:e-time} gives the distribution over the 720 runs of the repetition (240 instances, three seeds).
+The median time of \cfgfast{} is 4.2 s, which is the limit $T=4$ s plus the construction in progress when it expires. The mean (6.7 s) is higher because the recombination is not needed in most runs and uses time up to its limit in a few: 9.7\% of the runs last more than 14 s,
+and in 42 runs (5.8\%) the MILP reaches its limit of 30 s without a proof. The maximum is 34.2 s, which is $T+T_{\mathrm{milp}}$ plus a construction. \cfgbal{} has a median of 20.5 s, a mean of 25.9 s, a 90th percentile of 48.8 s and a maximum of 80.4 s;
+in 57 runs (7.9\%) the MILP reaches its limit of 60 s. Between 6.2\% and 6.7\% of the runs of each configuration end before $T$ because the squeaky wheel loop reaches the lower bound. The time grows with the number of boxes: the mean of \cfgfast{}
+is 3.4 s with 50 boxes and 10.5 s with 200, and that of \cfgbal{} is 16.8 and 34.2 s. \cfgqual{} has a mean and a median of 100.3 s, a 90th percentile of 112.9 s and a maximum of 200.6 s; in 33 runs (4.6\%) the MILP reaches its limit of 100 s, and 50 runs (6.9\%) end before $T$ at the lower bound. Its mean is 83.6 s with 50 boxes and 116.5 s with 200.
+Anyone who needs a bound on the running time should therefore read the maximum and not the mean.
+
+\begin{table}[t]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Time per instance in seconds (wall-clock, four processes in parallel) over the 720 runs of each configuration in the repetition on the 240 original instances. Limit: runs in which the MILP reached its time limit without a proof, over 720.}
+\label{tab:e-time}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+Configuration & Mean & Median & 90th pct. & Maximum & Mean, $n=50$ & Mean, $n=200$ & Limit\\
+\midrule
+\cfgfast{} & 6.7 & 4.2 & 12.5 & 34.2 & 3.4 & 10.5 & 42\\
+\cfgfast{} without harvest & 5.8 & 4.1 & 7.3 & 34.3 & 3.4 & 8.8 & 27\\
+\cfgbal{} & 25.9 & 20.5 & 48.8 & 80.4 & 16.8 & 34.2 & 57\\
+\cfgqual{} & 100.3 & 100.3 & 112.9 & 200.6 & 83.6 & 116.5 & 33\\
+\bottomrule
+\end{tabular}
+\end{table}
+\subsection{Comparison with the literature, rotations}
+\label{sec:e-rot}
+
+\pend{All the rows of this section come from campaigns whose raw files were lost. Repeat \cfgfast{},
+\cfgbal{}, \cfgqual{}, the configuration with $T=33$ and the matched squeaky wheel loop on the 320 instances
+with rotations under the protocol of Section~\ref{sec:e-setup}; this is the strongest comparison of the paper.}
+
+With rotations the blocks include the six orientations; nothing else changes. Table~\ref{tab:e-rot} gives the results and the totals of
+\citet{Mahvash2018} (Table~1 of their article, sum of the averages of their cells times ten; the total of 6854 for classes 1 and 4--8 is computed by us from their rows, and the
+total of 9013 for the eight classes is the one they print) and of BRKGA with six orientations \citep{Goncalves2013}. The BRKGA values for 200 boxes in classes 6, 7 and 8 are below the lower bound with
+rotations, which cannot happen for averages of valid solutions of the same instances, so we do not use that total as a reference.
+
+\begin{table}[t]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Total bins with rotations (six orientations). Ours: mean and standard deviation over three seeds; time per instance in brackets. All our rows come from earlier campaigns (two to five runs in parallel, raw files not kept), and the rows of different configurations were not run in the same campaign. $^{a}$ Time limit equal to the mean time of the $T=33$ configuration.}
+\label{tab:e-rot}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Method & Classes 1, 4--8 (240) & Classes 2, 3 (80) & All classes (320)\\
+\midrule
+Squeaky wheel alone, matched time$^{a}$ & 6845.3 (39 s) & 2165.0 (57 s) & 9010.3\\
+\cfgfast{} & $6840.0\pm 1.0$ (7.2 s) & --- & ---\\
+\cfgbal{} & $6840.0\pm 3.0$ (26.5 s) & --- & ---\\
+$T=33$, $T_{\mathrm{milp}}=60$, without harvest & $6835.3\pm 1.2$ (43 s) & $2159.0\pm 1.0$ (57 s) & 8994.3\\
+\cfgqual{} & $6831.0\pm 2.0$ (98.2 s) & $2154.3\pm 0.6$ (117.4 s) & 8985.3\\
+\midrule
+\citet{Mahvash2018} & 6854 & 2159 & 9013\\
+BRKGA, \citet{Goncalves2013} & 6837 (not reliable) & 2172 & 9009\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\cfgqual{} obtains 8985.3 bins on the eight classes against 9013 of \citet{Mahvash2018}, 27.7 bins (0.31\%) fewer, in 98.2 and 117.4 s per instance against a time per instance
+of a few seconds to under 1000 s on their machine (about 310 s on average over the 32 rows of their Table~1). Cell by cell, in classes 1 and 4--8 it is below their total in 12 of the 24 cells, equal in 10 and above in 2; in
+classes 2 and 3 it is below in 6 cells and above in 2 (class 2 and class 3 with 200 boxes: 42.13 against 41.9 and 42.17 against 42.1). \cfgbal{} is below in 11, equal in 9 and above in 4
+of the 24 cells of the first group. With rotations the larger budget does pay: \cfgqual{} is nine bins below \cfgbal{} in classes 1 and 4--8, better in 10, 12 and 8 instances per seed and worse in 0, 1 and 2
+($p=0.0016$, $0.0023$ and $0.058$). The recombination also contributes here: the configuration with $T=33$ is 10.0 bins below the squeaky wheel alone
+in classes 1 and 4--8 ($p=0.0027$, $0.0455$ and $0.0075$ by seed), and 6.0 in classes 2 and 3, where the difference per seed is not significant at the 5\% level ($p=0.125$, $0.109$ and $0.065$).
+\cfgfast{} also improves on the squeaky wheel alone with rotations (6840.0 against 6845.3) although $\tau=0.005$ s was set for fixed orientation.
+
+\subsection{Contribution of the components}
+\label{sec:e-ablation}
+
+\pend{Replace Table~\ref{tab:e-ablation} and Figure~\ref{fig:e-ablation} with the repetition under the protocol
+(three seeds, raw files in \texttt{results/bpp/ablation\_2026-11}), which adds a squeaky wheel loop with
+$T=26$ s as a control with the same time as the configuration with recombination and harvest.}
+
+Table~\ref{tab:e-ablation} adds the components one at a time on the 240 original instances with the same search budget
+($T=20$ s, $\tau=0.005$ s). The construction with profit $v^2$ (without squeaky wheel) gives 7383.5 bins in 0.1 s per instance; with $\kappa=1$,
+that is, maximizing the volume of each bin, it gives 7608.5, and is worse in 151 or 152 of the 240 instances depending on the seed. The squeaky
+wheel loop reduces the total by 115.5 bins ($p\approx 10^{-23}$). The learning matters: with $\rho=0$,
+where the loop only adds noise, the total is 7307.5, 39.5 bins above the loop with learning. The recombination removes 10 more bins ($p=0.0075$ and $0.0039$
+in the two seeds), and the harvest 5.5 more ($p=0.058$ and $0.059$): in this protocol the effect of the harvest is borderline in each seed.
+The total reduction from the plain construction to \cfgbal{} is 131 bins, 1.8\%. This ablation is from the earlier campaign, whose raw files were lost; its last row (7252.5) is
+3.5 bins below the repetition of \cfgbal{} (7256.0 with the same options), so the effects of the last two components, 10 and 5.5 bins, are reliable only as orders of magnitude;
+the effect of the harvest was measured again in the repetition (Table~\ref{tab:e-harvest}).
+
+\begin{table}[t]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Ablation on the 240 original instances (fixed orientation, $T=20$ s, $\tau=0.005$ s, two seeds; earlier campaign, raw files not kept).
+Each row adds a component to the previous one except the rows marked with $\ast$.}
+\label{tab:e-ablation}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Configuration & Bins, seed 1 & Bins, seed 2 & Mean & Time (s)\\
+\midrule
+Construction, $\kappa=2$ & 7384 & 7383 & 7383.5 & 0.1\\
+$\ast$ Construction, $\kappa=1$ & 7613 & 7604 & 7608.5 & 0.1\\
++ squeaky wheel loop & 7269 & 7267 & 7268.0 & 18.8\\
+$\ast$ squeaky wheel without learning ($\rho=0$) & 7312 & 7303 & 7307.5 & 19.0\\
++ recombination ($T_{\mathrm{milp}}=60$) & 7259 & 7257 & 7258.0 & 24.4\\
++ harvest ($K=10$, \cfgbal{}) & 7253 & 7252 & 7252.5 & 25.8\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The effect of the harvest depends on the budget. With the budget of \cfgfast{} (Table~\ref{tab:e-harvest}), adding it to the same configuration
+(7266.0 without it) lowers the total to 7256.7, 9.3 bins (0.13\%; $p=0.0002$ on the means of the instances) with 0.9 s more per instance. The squeaky wheel loop alone is not changed
+(the totals before the recombination are 7275.0 without the harvest and 7277.3 with it); the whole gain is in the recombination, which removes on average 20.7 bins with the harvest and 9.0
+without it. The recombination improves the solution in 8.6\% of the runs with the harvest and in 3.8\% without it. In an earlier campaign with the same
+configuration the totals were 7269.7 and 7259.3 (difference $-10.3$; by seed $-14$, $-4$, $-13$). With rotations, \cfgfast{} without harvest obtains $6846.3\pm 3.8$ and with it $6840.0\pm 1.0$ (difference $-6.3$, $p=0.018$;
+by seed $-10$, $-1$ and $-8$).
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=0.68\textwidth,height=6.2cm,xmin=7230,xmax=7680,y dir=reverse,ymin=-0.6,ymax=5.6,
+  ytick={0,1,2,3,4,5},
+  yticklabels={{Construction, $\kappa=1$},{Construction, $\kappa=2$},{Squeaky wheel without learning},{Squeaky wheel loop},{+ recombination},{+ harvest (\cfgbal{})}},
+  xlabel={Total bins, 240 original instances (mean of two seeds)},grid=major,
+  tick label style={font=\footnotesize},xlabel style={font=\footnotesize}]
+\addplot[only marks,mark=*,mark size=2.4pt,nodes near coords,point meta=explicit symbolic,
+  every node near coord/.append style={font=\scriptsize,anchor=west,xshift=3pt}]
+  coordinates {(7608.5,0) [7608.5] (7383.5,1) [7383.5] (7307.5,2) [7307.5] (7268.0,3) [7268.0] (7258.0,4) [7258.0] (7252.5,5) [7252.5]};
+\end{axis}
+\end{tikzpicture}
+\caption{Ablation on the 240 original instances ($T=20$ s, $\tau=0.005$ s; Table~\ref{tab:e-ablation}). The squeaky wheel loop gives most of the
+reduction; the recombination and the harvest add 10 and 5.5 bins. Without learning ($\rho=0$) the loop is 39.5 bins worse.}
+\label{fig:e-ablation}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Effect of the harvest at the budget of \cfgfast{} ($T=4$ s, $\tau=0.005$ s, $T_{\mathrm{milp}}=30$ s; 240 original instances; repetition of November 2026).}
+\label{tab:e-harvest}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+ & Seed 1 & Seed 2 & Seed 3 & Mean $\pm$ sd & Time (s)\\
+\midrule
+Without harvest & 7270 & 7264 & 7264 & $7266.0\pm 3.5$ & 5.8\\
+With harvest ($K=10$) & 7257 & 7256 & 7257 & $7256.7\pm 0.6$ & 6.7\\
+Difference & $-13$ & $-8$ & $-7$ & $-9.3$ & $+0.9$\\
+$p$ (Wilcoxon, per seed) & 0.0003 & 0.021 & 0.035 & & \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 Table~\ref{tab:e-within} isolates what the recombination adds inside the runs of the repetition. For each run, the solution
 that the squeaky wheel loop had found before the recombination is compared with the final one, so that the two have the same search and differ only in the time of the recombination (2 to 8 s on average, up to the limit in a few runs).
@@ -342,149 +494,6 @@ Configuration & Seed & Before & After & Diff. & Better & $p$ & $t_{\mathrm{milp}
 
 This comparison does not say that the time of the recombination is better spent than the same time in the squeaky wheel loop. For that
 comparison we have the controls of Section~\ref{sec:e-heldout} and Table~\ref{tab:e-milp}, whose time is matched to the total.
-
-\paragraph{Time per instance.}
-The limits $T$ and $T_{\mathrm{milp}}$ bound the time of the two phases but the totals vary, so Table~\ref{tab:e-time} gives the distribution over the 720 runs of the repetition (240 instances, three seeds).
-The median time of \cfgfast{} is 4.2 s, which is the limit $T=4$ s plus the construction in progress when it expires. The mean (6.7 s) is higher because the recombination is not needed in most runs and uses time up to its limit in a few: 9.7\% of the runs last more than 14 s,
-and in 42 runs (5.8\%) the MILP reaches its limit of 30 s without a proof. The maximum is 34.2 s, which is $T+T_{\mathrm{milp}}$ plus a construction. \cfgbal{} has a median of 20.5 s, a mean of 25.9 s, a 90th percentile of 48.8 s and a maximum of 80.4 s;
-in 57 runs (7.9\%) the MILP reaches its limit of 60 s. Between 6.2\% and 6.7\% of the runs of each configuration end before $T$ because the squeaky wheel loop reaches the lower bound. The time grows with the number of boxes: the mean of \cfgfast{}
-is 3.4 s with 50 boxes and 10.5 s with 200, and that of \cfgbal{} is 16.8 and 34.2 s. \cfgqual{} has a mean and a median of 100.3 s, a 90th percentile of 112.9 s and a maximum of 200.6 s; in 33 runs (4.6\%) the MILP reaches its limit of 100 s, and 50 runs (6.9\%) end before $T$ at the lower bound. Its mean is 83.6 s with 50 boxes and 116.5 s with 200.
-Anyone who needs a bound on the running time should therefore read the maximum and not the mean.
-
-\begin{table}[t]
-\centering
-\small\setlength{\tabcolsep}{4pt}
-\caption{Time per instance in seconds (wall-clock, four processes in parallel) over the 720 runs of each configuration in the repetition on the 240 original instances. Limit: runs in which the MILP reached its time limit without a proof, over 720.}
-\label{tab:e-time}
-\begin{tabular}{@{}lrrrrrrrr@{}}
-\toprule
-Configuration & Mean & Median & 90th pct. & Maximum & Mean, $n=50$ & Mean, $n=200$ & Limit\\
-\midrule
-\cfgfast{} & 6.7 & 4.2 & 12.5 & 34.2 & 3.4 & 10.5 & 42\\
-\cfgfast{} without harvest & 5.8 & 4.1 & 7.3 & 34.3 & 3.4 & 8.8 & 27\\
-\cfgbal{} & 25.9 & 20.5 & 48.8 & 80.4 & 16.8 & 34.2 & 57\\
-\cfgqual{} & 100.3 & 100.3 & 112.9 & 200.6 & 83.6 & 116.5 & 33\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Held-out classes and blind set}
-\label{sec:e-heldout}
-
-Classes 2 and 3 were never used to choose a configuration. Table~\ref{tab:e-heldout} shows the results of the configuration that we had when we ran them
-(squeaky wheel of 33 s followed by the recombination with a limit of 60 s, without harvest) and of \cfgfast{}. The
-standard deviation of this configuration (1.4) is the sample one, computed from the five totals 2519, 2517, 2515, 2517 and 2517. The
-recombination saves 10.8 bins (0.43\%) with respect to the squeaky wheel alone with the same time (Wilcoxon $p=0.0002$ over five seeds); in each
-seed it improves 10 to 14 instances and worsens none. This configuration obtains 2517.0, below the totals published for BRKGA (2519), GVND (2527) and TS3
-(2543), and above the total of \citet{Mahvash2018} (2514). \cfgfast{} obtains 2521.0, four bins above the longer configuration, with 5.4 times less
-time. We did not run \cfgbal{} and \cfgqual{} on these classes without rotation.
-
-\begin{table}[t]
-\centering
-\small\setlength{\tabcolsep}{4pt}
-\caption{Classes 2 and 3 (80 instances, fixed orientation) and blind set (128 instances of the second set of generated instances). All the rows come from earlier campaigns (two to five runs in parallel, raw files not kept). Bins: mean and
-sample standard deviation over the seeds; time per instance. ``$T=33$'': $T=33$ s, $T_{\mathrm{milp}}=60$ s, without harvest.}
-\label{tab:e-heldout}
-\begin{tabular}{@{}llrrr@{}}
-\toprule
-Set & Configuration & Seeds & Bins & Time (s)\\
-\midrule
-Classes 2, 3 & $T=33$ & 5 & $2517.0\pm 1.4$ & 39.7\\
- & squeaky wheel alone, $T=40$ & 5 & 2527.8 & 37.3 (seed 1)\\
- & \cfgfast{} & 3 & $2521.0\pm 2.6$ & 7.0--7.8\\
- & BRKGA & & 2519 & \\
- & GVND & & 2527 & \\
- & TS3 & & 2543 & \\
- & \citet{Mahvash2018} & & 2514 & \\
-\midrule
-Blind set & \cfgfast{} & 3 & $3931.3\pm 0.6$ & 7.3\\
- & \cfgfast{} without harvest & 3 & $3936.0\pm 0.0$ & 5.7\\
- & $T=33$ & 3 & $3930.7\pm 1.5$ & 36.6\\
- & squeaky wheel alone, $T=38$ & 3 & $3941.3\pm 3.1$ & 35.3\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The blind set confirms the two effects. \cfgfast{} (3931.3) is 0.7 bins above the configuration with $T=33$ (3930.7, $p=0.16$) with five
-times less time, and both are about ten bins below the squeaky wheel alone with the time of the second (3941.3):
-$-10.0$ ($p=0.0007$) and $-10.7$ ($p=0.0004$). Removing the harvest from \cfgfast{} raises the total by 4.7 bins ($p=0.011$ on the means of
-the instances; per seed $+4$, $+5$, $+5$ with $p=0.046$, $0.096$ and $0.025$). That is a smaller effect than on the original instances (below).
-
-\subsection{Contribution of the components}
-\label{sec:e-ablation}
-
-Table~\ref{tab:e-ablation} adds the components one at a time on the 240 original instances with the same search budget
-($T=20$ s, $t=0.005$ s). The construction with profit $v^2$ (without squeaky wheel) gives 7383.5 bins in 0.1 s per instance; with $\kappa=1$,
-that is, maximizing the volume of each bin, it gives 7608.5, and is worse in 151 or 152 of the 240 instances depending on the seed. The squeaky
-wheel loop reduces the total by 115.5 bins ($p\approx 10^{-23}$). The learning matters: with $\rho=0$,
-where the loop only adds noise, the total is 7307.5, 39.5 bins above the loop with learning. The recombination removes 10 more bins ($p=0.0075$ and $0.0039$
-in the two seeds), and the harvest 5.5 more ($p=0.058$ and $0.059$): in this protocol the effect of the harvest is borderline in each seed.
-The total reduction from the plain construction to \cfgbal{} is 131 bins, 1.8\%. This ablation is from the earlier campaign, whose raw files were lost; its last row (7252.5) is
-3.5 bins below the repetition of \cfgbal{} (7256.0 with the same options), so the effects of the last two components, 10 and 5.5 bins, are reliable only as orders of magnitude;
-the effect of the harvest was measured again in the repetition (Table~\ref{tab:e-harvest}).
-
-\begin{table}[t]
-\centering
-\small\setlength{\tabcolsep}{4pt}
-\caption{Ablation on the 240 original instances (fixed orientation, $T=20$ s, $t=0.005$ s, two seeds; earlier campaign, raw files not kept).
-Each row adds a component to the previous one except the rows marked with $\ast$.}
-\label{tab:e-ablation}
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-Configuration & Bins, seed 1 & Bins, seed 2 & Mean & Time (s)\\
-\midrule
-Construction, $\kappa=2$ & 7384 & 7383 & 7383.5 & 0.1\\
-$\ast$ Construction, $\kappa=1$ & 7613 & 7604 & 7608.5 & 0.1\\
-+ squeaky wheel loop & 7269 & 7267 & 7268.0 & 18.8\\
-$\ast$ squeaky wheel without learning ($\rho=0$) & 7312 & 7303 & 7307.5 & 19.0\\
-+ recombination ($T_{\mathrm{milp}}=60$) & 7259 & 7257 & 7258.0 & 24.4\\
-+ harvest ($K=10$, \cfgbal{}) & 7253 & 7252 & 7252.5 & 25.8\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The effect of the harvest depends on the budget. With the budget of \cfgfast{} (Table~\ref{tab:e-harvest}), adding it to the same configuration
-(7266.0 without it) lowers the total to 7256.7, 9.3 bins (0.13\%; $p=0.0002$ on the means of the instances) with 0.9 s more per instance. The squeaky wheel loop alone is not changed
-(the totals before the recombination are 7275.0 without the harvest and 7277.3 with it); the whole gain is in the recombination, which removes on average 20.7 bins with the harvest and 9.0
-without it. The recombination improves the solution in 8.6\% of the runs with the harvest and in 3.8\% without it. In an earlier campaign with the same
-configuration the totals were 7269.7 and 7259.3 (difference $-10.3$; by seed $-14$, $-4$, $-13$). With rotations, \cfgfast{} without harvest obtains $6846.3\pm 3.8$ and with it $6840.0\pm 1.0$ (difference $-6.3$, $p=0.018$;
-by seed $-10$, $-1$ and $-8$).
-
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}
-\begin{axis}[width=0.68\textwidth,height=6.2cm,xmin=7230,xmax=7680,y dir=reverse,ymin=-0.6,ymax=5.6,
-  ytick={0,1,2,3,4,5},
-  yticklabels={{Construction, $\kappa=1$},{Construction, $\kappa=2$},{Squeaky wheel without learning},{Squeaky wheel loop},{+ recombination},{+ harvest (\cfgbal{})}},
-  xlabel={Total bins, 240 original instances (mean of two seeds)},grid=major,
-  tick label style={font=\footnotesize},xlabel style={font=\footnotesize}]
-\addplot[only marks,mark=*,mark size=2.4pt,nodes near coords,point meta=explicit symbolic,
-  every node near coord/.append style={font=\scriptsize,anchor=west,xshift=3pt}]
-  coordinates {(7608.5,0) [7608.5] (7383.5,1) [7383.5] (7307.5,2) [7307.5] (7268.0,3) [7268.0] (7258.0,4) [7258.0] (7252.5,5) [7252.5]};
-\end{axis}
-\end{tikzpicture}
-\caption{Ablation on the 240 original instances ($T=20$ s, $t=0.005$ s; Table~\ref{tab:e-ablation}). The squeaky wheel loop gives most of the
-reduction; the recombination and the harvest add 10 and 5.5 bins. Without learning ($\rho=0$) the loop is 39.5 bins worse.}
-\label{fig:e-ablation}
-\end{figure}
-
-\begin{table}[t]
-\centering
-\small\setlength{\tabcolsep}{4pt}
-\caption{Effect of the harvest at the budget of \cfgfast{} ($T=4$ s, $t=0.005$ s, $T_{\mathrm{milp}}=30$ s; 240 original instances; repetition of November 2026).}
-\label{tab:e-harvest}
-\begin{tabular}{@{}lrrrrr@{}}
-\toprule
- & Seed 1 & Seed 2 & Seed 3 & Mean $\pm$ sd & Time (s)\\
-\midrule
-Without harvest & 7270 & 7264 & 7264 & $7266.0\pm 3.5$ & 5.8\\
-With harvest ($K=10$) & 7257 & 7256 & 7257 & $7256.7\pm 0.6$ & 6.7\\
-Difference & $-13$ & $-8$ & $-7$ & $-9.3$ & $+0.9$\\
-$p$ (Wilcoxon, per seed) & 0.0003 & 0.021 & 0.035 & & \\
-\bottomrule
-\end{tabular}
-\end{table}
-
 \paragraph{Parameters of BSG.}
 The parameters of BSG were not retuned for bin packing, and the following test shows that the construction does not depend on them. On 120 generated instances (classes 1 and 4--8,
 sizes 50 to 200, five instances each) with the construction alone, we varied one parameter at a time: $f_{\min}$ from 0.8 to 1.0, $N_{\max}$ from 100 to 4000, $\alpha$ from 0 to 4, $\beta$
@@ -618,49 +627,60 @@ share exactly the same pool, because the clock changes the search of BSG, so thi
 Lowering the time limit of the MILP from 60 s to 30 s on the 240 original instances gives $7259.0\pm 1.0$ bins with 38.2 s per instance (maximum 64 s), against $7256.0\pm 1.7$ with 42.8 s (maximum 94 s) for the prototype with a limit of 60 s: three bins more
 ($p=0.04$) for 11\% less mean time. The two figures come from different implementations of the MILP stage (C++ and the Python prototype).
 
-\subsection{Results with rotations}
-\label{sec:e-rot}
+\subsection{Generalisation: held-out classes and blind sets}
+\label{sec:e-heldout}
 
-With rotations the blocks include the six orientations; nothing else changes. Table~\ref{tab:e-rot} gives the results and the totals of
-\citet{Mahvash2018} (Table~1 of their article, sum of the averages of their cells times ten; the total of 6854 for classes 1 and 4--8 is computed by us from their rows, and the
-total of 9013 for the eight classes is the one they print) and of BRKGA with six orientations \citep{Goncalves2013}. The BRKGA values for 200 boxes in classes 6, 7 and 8 are below the lower bound with
-rotations, which cannot happen for averages of valid solutions of the same instances, so we do not use that total as a reference.
+Classes 2 and 3 were never used to choose a configuration. Table~\ref{tab:e-heldout} shows the results of the configuration that we had when we ran them
+(squeaky wheel of 33 s followed by the recombination with a limit of 60 s, without harvest) and of \cfgfast{}. The
+standard deviation of this configuration (1.4) is the sample one, computed from the five totals 2519, 2517, 2515, 2517 and 2517. The
+recombination saves 10.8 bins (0.43\%) with respect to the squeaky wheel alone with the same time (Wilcoxon $p=0.0002$ over five seeds); in each
+seed it improves 10 to 14 instances and worsens none. This configuration obtains 2517.0, below the totals published for BRKGA (2519), GVND (2527) and TS3
+(2543), and above the total of \citet{Mahvash2018} (2514). \cfgfast{} obtains 2521.0, four bins above the longer configuration, with 5.4 times less
+time. We did not run \cfgbal{} and \cfgqual{} on these classes without rotation.
 
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
-\caption{Total bins with rotations (six orientations). Ours: mean and standard deviation over three seeds; time per instance in brackets. All our rows come from earlier campaigns (two to five runs in parallel, raw files not kept), and the rows of different configurations were not run in the same campaign. $^{a}$ Time limit equal to the mean time of the $T=33$ configuration.}
-\label{tab:e-rot}
-\begin{tabular}{@{}lrrr@{}}
+\caption{Classes 2 and 3 (80 instances, fixed orientation) and blind set (128 instances of the second set of generated instances). All the rows come from earlier campaigns (two to five runs in parallel, raw files not kept). Bins: mean and
+sample standard deviation over the seeds; time per instance. ``$T=33$'': $T=33$ s, $T_{\mathrm{milp}}=60$ s, without harvest.}
+\label{tab:e-heldout}
+\begin{tabular}{@{}llrrr@{}}
 \toprule
-Method & Classes 1, 4--8 (240) & Classes 2, 3 (80) & All classes (320)\\
+Set & Configuration & Seeds & Bins & Time (s)\\
 \midrule
-Squeaky wheel alone, matched time$^{a}$ & 6845.3 (39 s) & 2165.0 (57 s) & 9010.3\\
-\cfgfast{} & $6840.0\pm 1.0$ (7.2 s) & --- & ---\\
-\cfgbal{} & $6840.0\pm 3.0$ (26.5 s) & --- & ---\\
-$T=33$, $T_{\mathrm{milp}}=60$, without harvest & $6835.3\pm 1.2$ (43 s) & $2159.0\pm 1.0$ (57 s) & 8994.3\\
-\cfgqual{} & $6831.0\pm 2.0$ (98.2 s) & $2154.3\pm 0.6$ (117.4 s) & 8985.3\\
+Classes 2, 3 & $T=33$ & 5 & $2517.0\pm 1.4$ & 39.7\\
+ & squeaky wheel alone, $T=40$ & 5 & 2527.8 & 37.3 (seed 1)\\
+ & \cfgfast{} & 3 & $2521.0\pm 2.6$ & 7.0--7.8\\
+ & BRKGA & & 2519 & \\
+ & GVND & & 2527 & \\
+ & TS3 & & 2543 & \\
+ & \citet{Mahvash2018} & & 2514 & \\
 \midrule
-\citet{Mahvash2018} & 6854 & 2159 & 9013\\
-BRKGA, \citet{Goncalves2013} & 6837 (not reliable) & 2172 & 9009\\
+Blind set & \cfgfast{} & 3 & $3931.3\pm 0.6$ & 7.3\\
+ & \cfgfast{} without harvest & 3 & $3936.0\pm 0.0$ & 5.7\\
+ & $T=33$ & 3 & $3930.7\pm 1.5$ & 36.6\\
+ & squeaky wheel alone, $T=38$ & 3 & $3941.3\pm 3.1$ & 35.3\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\cfgqual{} obtains 8985.3 bins on the eight classes against 9013 of \citet{Mahvash2018}, 27.7 bins (0.31\%) fewer, in 98.2 and 117.4 s per instance against a time per instance
-of a few seconds to under 1000 s on their machine (about 310 s on average over the 32 rows of their Table~1). Cell by cell, in classes 1 and 4--8 it is below their total in 12 of the 24 cells, equal in 10 and above in 2; in
-classes 2 and 3 it is below in 6 cells and above in 2 (class 2 and class 3 with 200 boxes: 42.13 against 41.9 and 42.17 against 42.1). \cfgbal{} is below in 11, equal in 9 and above in 4
-of the 24 cells of the first group. With rotations the larger budget does pay: \cfgqual{} is nine bins below \cfgbal{} in classes 1 and 4--8, better in 10, 12 and 8 instances per seed and worse in 0, 1 and 2
-($p=0.0016$, $0.0023$ and $0.058$). The recombination also contributes here: the configuration with $T=33$ is 10.0 bins below the squeaky wheel alone
-in classes 1 and 4--8 ($p=0.0027$, $0.0455$ and $0.0075$ by seed), and 6.0 in classes 2 and 3, where the difference per seed is not significant at the 5\% level ($p=0.125$, $0.109$ and $0.065$).
-\cfgfast{} also improves on the squeaky wheel alone with rotations (6840.0 against 6845.3) although $t=0.005$ s was set for fixed orientation.
+The blind set confirms the two effects. \cfgfast{} (3931.3) is 0.7 bins above the configuration with $T=33$ (3930.7, $p=0.16$) with five
+times less time, and both are about ten bins below the squeaky wheel alone with the time of the second (3941.3):
+$-10.0$ ($p=0.0007$) and $-10.7$ ($p=0.0004$). Removing the harvest from \cfgfast{} raises the total by 4.7 bins ($p=0.011$ on the means of
+the instances; per seed $+4$, $+5$, $+5$ with $p=0.046$, $0.096$ and $0.025$). That is a smaller effect than on the original instances (below).
 
-\subsection{Industrial instances with vertical support}
+\subsection{Vertical support: industrial instances}
 \label{sec:e-ind}
+
+\pend{The large instances use the construction alone, as when the recombination was believed to be incompatible
+with support. With the partitioning model the whole pipeline applies: run, at the same time per instance
+($\approx 18$ s and $\approx 60$ s), the construction alone with $\tau=2$ s against the squeaky wheel loop with
+$\tau\in\{0.2,0.5\}$ s, with and without the partitioning recombination. The instances, their converter and the
+support validator must be added to the repository.}
 
 \paragraph{Configuration.}
 These instances have 50 to 2000 boxes and bins that hold more than a hundred boxes when $n\ge 500$. We require, on every box above the floor, that at least 70\% of its
-base rests directly on boxes (Section~\ref{sec:m-ext}). As the recombination is not compatible with this requirement, for $n\ge 500$ we use the construction alone, with $\kappa=1$ and $t=2$ s per bin.
+base rests directly on boxes (Section~\ref{sec:m-ext}). In the runs reported here, for $n\ge 500$ we use the construction alone, with $\kappa=1$ and $\tau=2$ s per bin.
 These values were chosen by looking at a few instances of this benchmark (the first instance of each class with $n=1000$, the second instance of classes 1 and 2 with $n=500$, the first instance of class 1 with $n=500$ and 2000 and eight
 instances of classes 3 and 4 with $n=1500$ and 2000); the choice is not independent of the benchmark.
 
@@ -668,14 +688,14 @@ instances of classes 3 and 4 with $n=1500$ and 2000); the choice is not independ
 Table~\ref{tab:e-ind} gives the mean number of bins per cell for $n\ge 500$, with one run per instance, against the values of \citet{Elhedhli2019} (Table~9 of their article). The total over the 16 cells is 144.6 bins against 153.6 (5.9\% fewer):
 we are below in 11 cells, equal in 5 and above in none (exact sign test, $p=0.0010$; the cells share a configuration and a choice of parameters, so the test is descriptive). Three runs of the whole set (the construction is deterministic except for the clock) gave 723, 721 and 723 bins in the 80 instances,
 that is, 722.3 on average (144.5 as a sum of cell means), and in each run 80 of 80 solutions satisfy the 70\% support in every box (independent check of geometry and support). The time per instance is 18.3 s on average with two runs in parallel, against 608 s for LCGA;
-that is 33 times less in raw time and about 15 times after a factor of 2.27 between the single-thread ratings of the two processors \citep{PassMark} (3740 for the i5-14400 and 1650 for the i7-5500U; the factor is approximate). In the instances 3 to 5 of each cell, which were not looked at while choosing $\kappa$ and $t$, the excess over the lower bound
+that is 33 times less in raw time and about 15 times after a factor of 2.27 between the single-thread ratings of the two processors \citep{PassMark} (3740 for the i5-14400 and 1650 for the i7-5500U; the factor is approximate). In the instances 3 to 5 of each cell, which were not looked at while choosing $\kappa$ and $\tau$, the excess over the lower bound
 is 0.92 bins per instance for our method and 1.46 for LCGA (compared by cell averages because the numbering differs).
 
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
 \caption{Industrial instances, $n\ge 500$: mean number of bins per cell (five instances), ours with one run per instance and two runs in parallel at below-normal priority (construction alone, $\kappa=1$,
-$t=2$ s, support 70\%) and LCGA \citep{Elhedhli2019}.}
+$\tau=2$ s, support 70\%) and LCGA \citep{Elhedhli2019}.}
 \label{tab:e-ind}
 \begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
@@ -725,8 +745,8 @@ in the appendix tables give 78.2\% of the boxes with at least 70\% support (83.2
 makes our requirement the stricter one. Last, \citet{Elhedhli2019} allow a tolerance of 5 mm in the heights when forming layers, and we require exact contact.
 
 \paragraph{Time per bin and $\kappa$.}
-On the 48 instances obtained by resampling and the 24 from the catalogue (Table~\ref{tab:e-indnew}), the default configuration for the Martello et al.\ instances ($\kappa=2$, $t=0.02$ s) gives 497 and 264 bins; the
-configuration of this section ($\kappa=1$, $t=2$ s) gives 438 and 233, 11.9\% and 11.7\% fewer, but with 18 s per instance instead of less than one second. The fair control is the one that keeps $t=2$ s and
+On the 48 instances obtained by resampling and the 24 from the catalogue (Table~\ref{tab:e-indnew}), the default configuration for the Martello et al.\ instances ($\kappa=2$, $\tau=0.02$ s) gives 497 and 264 bins; the
+configuration of this section ($\kappa=1$, $\tau=2$ s) gives 438 and 233, 11.9\% and 11.7\% fewer, but with 18 s per instance instead of less than one second. The fair control is the one that keeps $\tau=2$ s and
 $\kappa=2$: it gives the same 438 bins in the resampled instances (4 instances better, 4 worse, 40 equal) and 241 in the catalogue instances, eight bins more (3.3\%) than $\kappa=1$ (better in 8, worse in none). Most of the gain thus
 comes from the time per bin, and $\kappa=1$ helps only in the catalogue instances.
 
@@ -739,16 +759,16 @@ comes from the time per bin, and $\kappa=1$ helps only in the catalogue instance
 \toprule
 Configuration & Resampled & Catalogue & Time (s)\\
 \midrule
-$\kappa=1$, $t=2$ s & 438 & 233 & 18.4--19.1\\
-$\kappa=2$, $t=0.02$ s (default for MPV) & 497 & 264 & 0.3--0.7\\
-$\kappa=2$, $t=2$ s & 438 & 241 & 18.5--20.0\\
+$\kappa=1$, $\tau=2$ s & 438 & 233 & 18.4--19.1\\
+$\kappa=2$, $\tau=0.02$ s (default for MPV) & 497 & 264 & 0.3--0.7\\
+$\kappa=2$, $\tau=2$ s & 438 & 241 & 18.5--20.0\\
 LB & 390 & 216 & \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Cost of the support requirement.}
-Table~\ref{tab:e-support} shows the construction with $\kappa=1$ and $t=2$ s on the 80 instances with $n\ge 500$ for several support criteria. Requiring 70\% on every box costs 15 bins out of 708 (2.1\%) with respect to requiring nothing; without a requirement, only 77.3\% of
+Table~\ref{tab:e-support} shows the construction with $\kappa=1$ and $\tau=2$ s on the 80 instances with $n\ge 500$ for several support criteria. Requiring 70\% on every box costs 15 bins out of 708 (2.1\%) with respect to requiring nothing; without a requirement, only 77.3\% of
 the boxes have 70\% of support, so the explicit condition is necessary. Stricter criteria are costly: 85\% costs 9.7\% more than 70\%, and full support 80\% more. We
 also tried 95\% and 100\% of the base on eight instances (classes 1--4, first instance, $n=500$ and 1000): 43\% and 89\% more bins than 70\% (the total of the eight was 63 and 83 against 44), so the cost does not appear only with full support. We did not determine whether the block structure of the
 generator or the criterion itself is the cause.
@@ -756,7 +776,7 @@ generator or the criterion itself is the cause.
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
-\caption{Criteria of support (industrial instances, $n\ge 500$, 80 instances, construction alone, $\kappa=1$, $t=2$ s, one run per instance, two runs in parallel). Support: percentage of the base area resting on boxes.}
+\caption{Criteria of support (industrial instances, $n\ge 500$, 80 instances, construction alone, $\kappa=1$, $\tau=2$ s, one run per instance, two runs in parallel). Support: percentage of the base area resting on boxes.}
 \label{tab:e-support}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
@@ -780,16 +800,16 @@ Full support & 1303 & 32.1 & 100\% & 100\% & 100\%\\
 \addplot[fill=blue!55] coordinates {(None,708) ({50\%},720) ({70\% (used)},723) ({85\%},793) ({Full},1303)};
 \end{axis}
 \end{tikzpicture}
-\caption{Cost of the support requirement in the construction ($\kappa=1$, $t=2$ s, industrial instances with $n\ge 500$; Table~\ref{tab:e-support}).}
+\caption{Cost of the support requirement in the construction ($\kappa=1$, $\tau=2$ s, industrial instances with $n\ge 500$; Table~\ref{tab:e-support}).}
 \label{fig:e-support}
 \end{figure}
 
 \paragraph{Small industrial instances.}
-For $n<500$ the construction alone leaves one or two bins per cell and is not better than LCGA (23.4 against 23.0 bins over the 16 cells). With a configuration that also includes the improvement phase of Section~\ref{sec:m-ext}
+For $n<500$ the construction alone leaves one or two bins per cell and is not better than LCGA (23.4 against 23.0 bins over the 16 cells). With a configuration that also includes the improvement phase of Appendix~\ref{app:improve}
 ($T=30$ s, 30\% of it for the squeaky wheel loop and the rest for the improvement phase, with the reload from scratch, $\kappa=1$,
-$t=0.02$ s in the construction and 0.04 s in the improvement phase) the total is 22.0 against 23.0 (below in two cells and equal in 14), with 5 s per instance on average because the search stops when the lower bound is reached.
+$\tau=0.02$ s in the construction and 0.04 s in the improvement phase) the total is 22.0 against 23.0 (below in two cells and equal in 14), with 5 s per instance on average because the search stops when the lower bound is reached.
 
-\subsection{Large instances}
+\subsection{Limits: large instances}
 \label{sec:e-scale}
 
 The recombination does not scale to instances with several hundred boxes with the budgets used here. On 36 generated instances with $n=500$ and $n=1000$ (six classes, three instances per class and size), the squeaky wheel followed by the recombination (50 s and 60 s) obtains 6183 bins in 101.5 s,
@@ -797,46 +817,6 @@ against 6179 of the squeaky wheel alone with 102 s (the second is better in 5 in
 The lower bounds are 1955 for $n=500$ and 3958 for $n=1000$, against 2056 and 4127 bins of the first configuration. In another set of 24 generated instances (six classes, two sizes with $n=500$ and 1000, two instances each), the pools of \cfgbal{} give
 4072 bins, and the sum of the rounded LP values of those pools is 4036: even a perfect recombination of those pools could save at most 36 bins (0.9\%). The margin
 is then in the generation of better columns and not in the recombination.
-
-\subsection{Variants that did not improve the method}
-\label{sec:e-negative}
-
-We tried other changes during the development. None of them is part of the method, and we list them because they delimit what can be expected from this approach. The tests were run
-with earlier versions of the code, with fewer seeds and on the sets used for development (the 72 original instances of classes 1 and 4--8 with sizes 50 to 200 and the first three instances of each cell,
-unless the table says otherwise), and the raw files of some of them were not preserved. The numbers are those obtained then.
-
-\begin{table}[t]
-\centering
-\small\setlength{\tabcolsep}{4pt}
-\caption{Variants tested and discarded. ``Base'' is the method without the variant under the same budget.}
-\label{tab:e-negative}
-\begin{tabular}{@{}p{3.7cm}p{4.0cm}p{7.2cm}@{}}
-\toprule
-Variant & Test & Result\\
-\midrule
-Swaps and transfers of one or two boxes between two bins, accepted by the sum of squares of the loads & 72 original instances, $T=10$ s, five seeds & 2181.4 against 2178.0 for the base ($+3.4$, $p=0.038$); it removes zero to two bins in the 72 instances\\
-Random subset of boxes for each bin (a multiple $r$ of the volume of the bin) & same, two seeds & $r=2$: 2281.0 ($+4.7\%$); $r=1.5$: 2330.5 ($+7\%$)\\
-Random exponent $\kappa$ at each iteration of the loop & same, three to five seeds & spread 0.5: 2178.8 ($p=0.53$); spread 1: 2181.0 ($+3.0$, $p=0.042$)\\
-Keep the weights of the incumbent (undo the update when the solution is worse) & same, two seeds & 2184.5 against 2178.0 ($p=0.023$)\\
-Geometric prior on the profit of the boxes & same, three seeds, $T=10$ s & 2177.7 and 2178.7 against 2178.0 ($p=0.75$ and $0.35$)\\
-Improvement phase (Section~\ref{sec:m-ext}) instead of squeaky wheel & 72 generated instances, about 20 s & construction 2172; with the improvement phase 2168; squeaky wheel loop 2139; half of the time for each 2142\\
-Column generation with dual prices as profits for BSG, then the MILP & 240 original instances, three seeds & 7263.7 with squeaky wheel 10 s, generation 20 s and MILP 60 s, against 7256.0 with squeaky wheel 33 s and MILP 60 s ($p=0.0011$)\\
-Squeaky wheel loop guided by the dual prices & 36 generated instances (classes 1, 5, 8), $T=20$ s & 987 bins against 986 ($p=0.79$)\\
-Recombination with a subproblem (large neighbourhood search) & 24 generated instances, 500 and 1000 boxes & 4071 and 4070 against 4072, with 68\% and 87\% more time ($p=0.56$ and $0.32$)\\
-Window of the 1000 columns of lowest reduced cost in the MILP & same & 4072 against 4070 with the complete model, 36\% less time\\
-Filter of dominated columns & 240 original instances, two seeds & 7254 and 7258 against 7254 and 7257; it removes 16\% of the columns and the MILP time goes from 7.98 to 7.76 s\\
-Partition model instead of covering (compatible with support) & 80 small industrial instances & 112 bins with both; they differ in four instances, two for each\\
-Repacking of the least loaded bins as a subproblem & bins of the final solutions of the 240 original instances & five bins: 2 of 224 instances improved; eight bins: 0 of 208\\
-Union of the pools of the three seeds & 240 original instances, MILP limit 30 s & 7254 bins, against 7253 for the best of the three seeds on each instance\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Two results are worth stressing. The column generation with dual prices, the usual way to generate patterns, is worse than spending the same time in the squeaky wheel loop and recombining its bins, at least with 20 s for the
-generation, which does not tell us how it would behave with a budget of the order of 1000 s as the one of \citet{Mahvash2018}. And the improvement phase that removes a bin by ruin and recreate, effective when the bins have a large slack as in the industrial instances,
-loses against giving the time to the squeaky wheel loop in the benchmark of \citet{Martello2000}, where the bins have a slack of about 5\%.
-The option that stops the search when the LP of the pool proves the incumbent optimal for the pool is not a negative result but a trade of quality for time: on 192 generated instances it reduces the mean time by 14\% (31.3 s against 36.2 s) and
-increases the total by four bins in 5870 (0.07\%, $p=0.22$), so we do not include it in the three configurations.
 
 \subsection{Discussion and limits of the evidence}
 \label{sec:e-discussion}
@@ -863,8 +843,8 @@ were also measured on classes 2 and 3 and on two blind sets, and they have the s
 were obtained by resampling its boxes, so they are not independent either (Section~\ref{sec:e-ind}).
 
 \paragraph{Limits of the method.}
-The recombination does not scale to several hundred boxes with the budgets used here: with $n=500$ and $1000$ it improved one instance of 36, and the LP of the pools shows that at most 0.9\% could be gained from them (Section~\ref{sec:e-scale}). It is not compatible with the support requirement,
-because removing the surplus boxes can leave a box without support, so the industrial results come from the construction alone for $n\ge 500$. The support criterion is expensive when it is made stricter: 85\% of the base costs 9.7\% more bins than 70\%, and full support 80\% more (Table~\ref{tab:e-support}).
+The recombination does not scale to several hundred boxes with the budgets used here: with $n=500$ and $1000$ it improved one instance of 36, and the LP of the pools shows that at most 0.9\% could be gained from them (Section~\ref{sec:e-scale}). The covering model is not compatible with the support requirement,
+because removing the surplus boxes can leave a box without support; the partitioning model is, but its effect on the industrial instances is not measured yet, and the results reported for $n\ge 500$ come from the construction alone. The support criterion is expensive when it is made stricter: 85\% of the base costs 9.7\% more bins than 70\%, and full support 80\% more (Table~\ref{tab:e-support}).
 The method needs a MILP solver for the recombination; without it only the construction and the squeaky wheel loop are available.
 
 \paragraph{Industrial instances.}

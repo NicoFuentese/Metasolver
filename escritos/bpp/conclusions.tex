@@ -1,0 +1,33 @@
+% Seccion "Conclusions" del paper de bin packing 3D (BSG_BPP).
+\section{Conclusions}
+\label{sec:conclusions}
+
+We presented a method for the three-dimensional bin packing problem that generates bin patterns with a
+single-bin loader inside a squeaky wheel loop over the profits of the box types, enlarges the pool with
+the loads that the loader explores and discards, and recombines the pool with a set covering model, or
+with a set partitioning model when the bins must respect vertical support. The LP relaxation of the
+pool tells when the recombination has nothing more to offer, and in most runs no integer program is
+solved.
+
+On the benchmark of \citet{Martello2000} the method is at the level of the best published totals
+without rotations and below them with rotations. The squeaky wheel loop gives most of the improvement
+over a single construction; the recombination adds a small but consistent saving, also on instances
+that were not used to design the method, and the harvest makes it effective with short budgets. On
+industrial instances with 70\% support on every box the method uses fewer bins than the column
+generation over layers of \citet{Elhedhli2019}.
+\pend{Rewrite after the pending experiments: the role of the squeaky wheel loop and of the
+partitioning model under vertical support is not measured yet.}
+
+\paragraph{Limits.}
+The recombination can only choose among the patterns in the pool. With several hundred boxes the pools
+of our budgets leave little room (at most 0.9\% of the bins according to their LP), so the quality
+depends on the generation of patterns and not on the recombination. The covering model needs that
+removing a box keeps a bin feasible; the partitioning model removes that requirement at the price of a
+harder model. The comparisons with the literature are made on totals, from other machines and an
+unknown number of runs.
+
+\paragraph{Future work.}
+The generator receives no information from the recombination. Using the dual prices of the pool as
+profits for BSG, as column generation does, did not pay with our budgets, but it may with longer ones.
+Other loading constraints that a single-bin loader can enforce (weight limits, load balance, fragility)
+fit the same scheme with the partitioning model.

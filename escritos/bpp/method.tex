@@ -14,8 +14,9 @@ The method treats bin packing as the generation and the recombination of bin pat
 pattern is the load of one bin, described by the number of boxes of each type that it contains.
 In a first phase, a sequential construction heuristic is run many times while its priorities
 are adjusted, and every bin that it produces is stored as a pattern. In a second phase, a set
-covering model chooses, among the stored patterns, the combination that covers all the boxes
-with the fewest bins. Figure~\ref{fig:overview} shows the pipeline.
+covering or set partitioning model chooses, among the stored patterns, the combination that
+loads all the boxes with the fewest bins: covering when removing a box from a bin keeps it
+feasible, partitioning when it does not (for example, under vertical support). Figure~\ref{fig:overview} shows the pipeline.
 
 The two phases are linked by a pool of patterns that is much larger than any solution that
 contributes to it. One run of the construction yields as many patterns as bins, and the search
@@ -41,7 +42,7 @@ contains nothing better than the incumbent solution.
 \node[box]  (inst)   at (1.4,5.3)  {Instance\\ $d_t,\ v_t,\ (L,W,H)$};
 \node[box]  (constr) at (7.0,5.3)  {Sequential construction\\ profits $p_t$};
 \node[box]  (swo)    at (12.9,5.3) {Squeaky wheel\\ update weights $w_t$};
-\node[box]  (bsg)    at (7.0,3.0)  {BSG loads one bin\\ ($t$ s per call)};
+\node[box]  (bsg)    at (7.0,3.0)  {BSG loads one bin\\ ($\tau$ s per call)};
 \node[pool] (pool)   at (1.4,3.0)  {Pattern pool $\mathcal{P}$\\ distinct bin loads};
 \draw[arr] (inst) -- (constr);
 \draw[arr] ([yshift=4pt]constr.east) -- node[lab,above]{solution $S$} ([yshift=4pt]swo.west);
@@ -85,14 +86,13 @@ better solution and solves the remaining MILP, warm started with the best soluti
 \label{sec:m-notation}
 
 The bins are identical, with dimensions $L\times W\times H$ and volume $V=LWH$. The $n$ boxes are
-grouped into $T$ types of identical dimensions; type $t$ has volume $v_t$ and $d_t$ boxes, so
+grouped into $m$ types of identical dimensions; type $t$ has volume $v_t$ and $d_t$ boxes, so
 that $n=\sum_t d_t$. A \emph{load} is a set of boxes placed in a bin without overlaps, and its
-\emph{pattern} is the vector $a\in\mathbb{Z}_{\ge 0}^{T}$ whose component $a_t$ is the number of
+\emph{pattern} is the vector $a\in\mathbb{Z}_{\ge 0}^{m}$ whose component $a_t$ is the number of
 boxes of type $t$ in the load. A vector $a\le d$ is \emph{feasible} if there is a load with
 pattern $a$. A solution $S$ is a list of loads whose patterns add up to $d$, and $|S|$ is the
-number of bins. The orientation of the boxes is fixed unless stated otherwise
-(Section~\ref{sec:m-ext}). The search stops early when $|S|$ reaches the lower bound $\mathrm{LB}$,
-the maximum of the continuous bound and the bounds $L_1$ and $L_2$ of \citet{Martello2000}.
+number of bins. The search stops early when $|S|$ reaches the lower bound $\mathrm{LB}$ of
+Section~\ref{sec:problem}.
 
 \subsection{Loading one bin with BSG}
 \label{sec:m-bsg}
@@ -122,15 +122,15 @@ The blocks that fit in the selected space are ranked with the VCS function of \c
 in which the volume of the block is replaced by its profit:
 \begin{equation}
 \label{eq:vcs}
-\mathrm{VCS}(b) = P(b)\,\bigl(1-\mathrm{loss}(b)\bigr)^{\beta}\,\mathrm{CS}_p(b)^{\alpha}\,n(b)^{-\gamma}.
+\mathrm{VCS}(b) = P(b)\,\bigl(1-\mathrm{loss}(b)\bigr)^{\beta}\,\mathrm{CS}_q(b)^{\alpha}\,n(b)^{-\gamma}.
 \end{equation}
 Here $P(b)=\sum_t p_t\,m_t(b)$ is the profit of the block, where $m_t(b)$ is the number of boxes
 of type $t$ in $b$ and $p_t$ is the profit of a box of type $t$ (Section~\ref{sec:m-construct});
 $\mathrm{loss}(b)$ is the proportion of the free space that the remaining boxes cannot fill
-after placing $b$, estimated with one-dimensional knapsack problems; $\mathrm{CS}_p(b)$ is the
+after placing $b$, estimated with one-dimensional knapsack problems; $\mathrm{CS}_q(b)$ is the
 proportion of the surface of $b$ in contact with placed blocks or walls, where a gap of at most
-a proportion $p$ of the block dimension still counts as contact; and $n(b)$ is the number of boxes
-of $b$. We keep the values $\alpha=2.4407$, $\beta=2.2652$, $\gamma=0.3896$ and $p=0.0164$ that
+a proportion $q$ of the block dimension still counts as contact; and $n(b)$ is the number of boxes
+of $b$. We keep the values $\alpha=2.4407$, $\beta=2.2652$, $\gamma=0.3896$ and $q=0.0164$ that
 were tuned for the container loading problem; we do not retune them for bin packing
 (the sensitivity analysis is in Section~\ref{sec:e-ablation}).
 
@@ -145,9 +145,9 @@ $w=4$ and at most $m=16$ children per level, and after every run $w$ and $m/w$ a
 $\sqrt{2}$. The implementation applies the optimisations of \citet{Guesser2026}, which do not
 change the result of the search.
 
-In what follows, $\textsc{LoadBin}(R,p,t)$ denotes one such search of $t$ seconds over the multiset
+In what follows, $\textsc{LoadBin}(R,p,\tau)$ denotes one such search of $\tau$ seconds over the multiset
 of boxes $R$ with box profits $p$. It returns a load, its pattern $a\le R$, and the positions of
-its boxes. The time $t$ covers the search and not the generation of the blocks, which costs a
+its boxes. The time $\tau$ covers the search and not the generation of the blocks, which costs a
 fixed overhead of the order of two milliseconds per call.
 
 \subsection{Sequential construction with box profits}
@@ -170,11 +170,11 @@ and the small ones, which fill the gaps best, remain for the bins that follow. W
 \caption{$\textsc{Construct}(p)$}
 \label{alg:construct}
 \begin{algorithmic}[1]
-\Require box profits $p$, demands $d$, time per bin $t$
+\Require box profits $p$, demands $d$, time per bin $\tau$
 \Ensure a solution $S$
 \State $R\gets d$;\quad $S\gets\emptyset$
 \While{$R\neq 0$}
-  \State $(\ell,a)\gets \textsc{LoadBin}(R,p,t)$ \Comment{BSG, profit-guided}
+  \State $(\ell,a)\gets \textsc{LoadBin}(R,p,\tau)$ \Comment{BSG, profit-guided}
   \State store $a$ in the pool $\mathcal{P}$ \Comment{with the positions of $\ell$}
   \State $R\gets R-a$;\quad append $\ell$ to $S$
 \EndWhile
@@ -243,12 +243,11 @@ completed load and updates $\upsilon^*$, the largest volume seen in the current 
 retained as a candidate if $\upsilon\ge\theta\,\upsilon^*$ and its pattern is neither in the pool
 nor among the candidates. When the call ends, the candidates that still satisfy
 $\upsilon\ge\theta\,\upsilon^*$ for the final value of $\upsilon^*$ are sorted by volume, and the
-$K$ most loaded are added to the pool. Candidates are capped at $8K$ during the call to bound
-memory. We use $K=10$ and $\theta=0.95$. The harvested loads are produced under the same state as
+$K$ most loaded are added to the pool. To bound memory, when the candidates exceed $8K$ during the
+call only the $K$ most loaded are kept. We use $K=10$ and $\theta=0.95$. The harvested loads are produced under the same state as
 the load that BSG returns, with the same unplaced boxes, so they are valid columns for the covering
-model, although the construction does not use them. The harvest acts only in the constructions,
-where BSG loads an empty bin; it is not applied when BSG reloads a bin with fixed boxes in the
-improvement phase. The loads of the final solution are also added to the pool before the recombination.
+model, although the construction does not use them. The harvest acts whenever BSG loads an empty bin; it is not applied when BSG reloads a bin with
+fixed boxes in the improvement phase of Appendix~\ref{app:improve}. The loads of the final solution are also added to the pool before the recombination.
 
 The harvest does not alter any decision of BSG; it only records loads that BSG has already built,
 at the cost of some extra time per call. Its effect is on the pool, which fills much faster per
@@ -256,7 +255,7 @@ second of search. This matters for short time limits, where the squeaky wheel lo
 produce too few patterns for the recombination to find a better combination
 (Section~\ref{sec:e-ablation} isolates the effect of the harvest).
 
-\subsection{Recombination by set covering}
+\subsection{Recombination by set covering or partitioning}
 \label{sec:m-cover}
 
 Let the columns $j\in\mathcal{P}$ be the patterns of the pool, with $a_{tj}$ boxes of type $t$ in
@@ -269,11 +268,15 @@ pattern $j$. The recombination solves
 where $x_j$ is the number of bins loaded with pattern $j$. The constraints are covering rather than
 partitioning constraints: a combination of patterns may contain a box type more often than
 demanded, and the surplus boxes are removed afterwards (see the repair step below). Variables are
-general integers because the same pattern can be used in several bins.
+general integers because the same pattern can be used in several bins. When removing a box can make
+a load infeasible, as with vertical support (Section~\ref{sec:m-ext}), \eqref{eq:cover} is
+replaced by the equalities $\sum_j a_{tj}x_j=d_t$ (\emph{partitioning model}); no box is then
+removed and the repair step is not needed.
 
 \paragraph{LP relaxation and pool bound.}
 Let $z$ be the optimal value of the LP relaxation of \eqref{eq:obj}--\eqref{eq:int} and
-$\lambda\ge 0$ an optimal dual solution, with one price $\lambda_t$ per box type. The reduced
+$\lambda$ an optimal dual solution, with one price $\lambda_t$ per box type ($\lambda\ge 0$ in the
+covering model, free in the partitioning model). The reduced
 cost of column $j$ is
 \begin{equation}
 \label{eq:rc}
@@ -292,7 +295,8 @@ finally strong duality ($z=\sum_t\lambda_t d_t$),
 \sum_j x_j=\sum_j r_j x_j+\sum_t\lambda_t\sum_j a_{tj}x_j\;\ge\;\sum_j r_j x_j+\sum_t\lambda_t d_t
 \;=\;z+\sum_j r_j x_j .
 \]
-Since $r_j\ge 0$, $\sum_j x_j\ge z$, and the left side is an integer, which gives (i). If
+In the partitioning model the inequality is an equality and $\lambda\ge 0$ is not needed. Since
+$r_j\ge 0$, $\sum_j x_j\ge z$, and the left side is an integer, which gives (i). If
 $\sum_j x_j\le U$, the inequality gives $r_jx_j\le U-z$ for every $j$, so $x_j\ge 1$ requires
 $r_j\le U-z$, which gives (ii).
 \end{proof}
@@ -320,9 +324,9 @@ Given $x$, take $x_j$ copies of the load of every pattern $j$ with $x_j>0$. For 
 a surplus $e_t=\sum_j a_{tj}x_j-d_t>0$, remove $e_t$ boxes of that type, taking them from the
 copies that come last in a fixed order. The loads that become empty are discarded. A load that
 loses a box remains feasible, because removing a box cannot create an overlap, so the result is a
-valid solution with at most $\sum_j x_j$ bins. This holds only when no box rests on another box;
+valid solution with at most $\sum_j x_j$ bins. This holds only when no box needs another box below it;
 with a vertical support requirement the removal could leave a box without support, and the
-recombination is not used in that case (Section~\ref{sec:m-ext}).
+partitioning model is used instead (Section~\ref{sec:m-ext}).
 
 \begin{algorithm}[t]
 \caption{$\textsc{Recombine}(S^*,\mathcal{P},T_{\mathrm{milp}})$}
@@ -396,12 +400,16 @@ squeaky wheel loop, which builds the incumbent and fills the pool; Phase 2 spend
 $T_{\mathrm{milp}}$ on the recombination. The time limits are independent, so the total running time
 is about $T+T_{\mathrm{milp}}$, less when the lower bound is reached in Phase 1 or the pool bound
 stops Phase 2. The result is checked box by box before it is reported.
+\pend{The code runs the recombination also when $|S^*|=\mathrm{LB}$ (harmless, the first LP proves it); align
+Algorithm~\ref{alg:overall} and the code. The code also flips the sign of the duals and clips the negative ones
+without recomputing $z$: check that Proposition~\ref{prop:fix} is applied with exact optimal duals, or take the
+reduced costs directly from the solver.}
 
 \begin{algorithm}[t]
 \caption{Overall method}
 \label{alg:overall}
 \begin{algorithmic}[1]
-\Require instance, $\kappa$, $t$, $K$, $T$, $T_{\mathrm{milp}}$
+\Require instance, $\kappa$, $\tau$, $K$, $T$, $T_{\mathrm{milp}}$
 \Ensure a solution $S$
 \State $(S^*,\mathcal{P})\gets$ squeaky wheel optimisation with time limit $T$ \Comment{Algorithm~\ref{alg:swo}, harvest with $K$}
 \If{$T_{\mathrm{milp}}>0$ \textbf{and} $|S^*|>\mathrm{LB}$}
@@ -430,7 +438,7 @@ not in the pool. Its quality depends on how well the construction and the harves
 patterns that a good solution needs.
 
 \paragraph{Cost.}
-A construction needs one BSG call per bin, so it takes about $|S|\,(t+\delta)$ seconds, where
+A construction needs one BSG call per bin, so it takes about $|S|\,(\tau+\delta)$ seconds, where
 $\delta$ is the fixed overhead per call, and the squeaky wheel loop repeats it until the time
 limit. The recombination adds the time of one LP and, when the LP bound does not stop it, of the
 MILP, both bounded by $T_{\mathrm{milp}}$; HiGHS \citep{Huangfu2018} runs on a single thread.
@@ -453,40 +461,16 @@ not depend on the orientation, because a pattern only counts boxes per type. The
 used to stop the search is the continuous bound.
 
 \paragraph{Vertical support.}
-The industrial instances require that every box rests on a sufficient part of its base.
-\citet{Elhedhli2019} take from industry practice a minimum support of 70\% of the base area of
-an item, and we impose the same minimum on every box. Inside a block, one sub-block is stacked on
-another only if the lower one has a flat top that covers the whole base of the upper one. A block
-placed above the floor is accepted only if every box of its bottom layer has at least a fraction
-$0.7$ of its base area resting directly on the top faces of the boxes below. The check is made
-when a block is placed, so every state of the search satisfies it. Because the repair step
-could leave a box without support, the recombination is incompatible with this requirement, and
-the experiments on the large industrial instances use the construction alone, with a time per
-bin of $t=2$ s because these bins hold more than a hundred boxes, and with $\kappa=1$ (the
-experiments compare it with $\kappa=2$). The small industrial instances also use the improvement phase described below. A partition variant of the model, in which no box is removed, avoids the problem; we
-tried it on the small industrial instances without a measurable gain
-(Section~\ref{sec:e-negative}).
-
-\paragraph{Improvement phase.}
-When a solution has only a few bins, as in the small industrial instances, the search can be
-followed by a phase that tries to remove one bin. It receives the part of the time limit $T$ that
-the squeaky wheel loop does not use (30\% of $T$ goes to the loop and 70\% to this phase in the
-experiments on small industrial instances); in the three configurations of Table~\ref{tab:configs}
-the loop uses all of $T$ and the phase does not run. The bins are taken as target one at a time,
-from the least loaded, and the boxes of the target are the pending boxes to be inserted into the
-other bins. For each fraction $\rho\in\{0.3,0.6,0.9\}$ and for each of the other bins, again from
-the least loaded, boxes with no box above them are removed, highest first, until a fraction $\rho$
-of the loaded volume of the bin is out. BSG then reloads the bin with the remaining boxes fixed in
-their positions and the pending boxes available, and the new load replaces the old one if it has
-more profit (ties are broken by volume). As an option, every bin is first reloaded from scratch with
-its boxes and the pending ones, with the same acceptance rule. If every pending box is inserted, the
-target disappears. Otherwise, if BSG can load all the pending boxes in one bin and the sum of the
-squares of the loaded volumes increases, the change is accepted, because it prepares the removal of
-a bin in the next attempts. When a complete pass over the targets changes nothing, the boxes
-removed and the fraction $\rho$ (uniform in $[0.2,0.9]$) are drawn at random instead. The phase
-stops when the number of bins reaches $\mathrm{LB}$ or the time is over. The calls to BSG in this
-phase last $\tau t$, with $\tau=2$ in the experiments on small industrial instances. On the other
-instances the phase did not improve the results (Section~\ref{sec:e-negative}).
+With the support requirement of Section~\ref{sec:problem}, only BSG and the recombination change.
+Inside a block, one sub-block is stacked on another only if the lower one has a flat top that
+covers the whole base of the upper one. A block placed above the floor is accepted only if every
+box of its bottom layer has at least a fraction $0.7$ of its base area resting directly on the top
+faces of the boxes below. The check is made when a block is placed, so every load that BSG returns,
+and every harvested load, satisfies it. The recombination uses the partitioning model, so that no
+box is removed from a load. The rest of the method is unchanged.
+\pend{Industrial experiments with the whole pipeline (squeaky wheel, harvest and the partitioning
+model) at the same time as the construction alone; today the large industrial instances use the
+construction alone with $\tau=2$ s and $\kappa=1$ (Section~\ref{sec:e-ind}).}
 
 \subsection{Parameters and configurations}
 \label{sec:m-params}
@@ -495,7 +479,11 @@ Table~\ref{tab:params} lists the parameters of the method, and Table~\ref{tab:co
 configurations used in the experiments. They differ in the time limits of the search and of the
 recombination, in the time per bin, and in whether the harvest is active. For a short search the
 harvest compensates for the small number of squeaky wheel iterations; for a long search the
-pool already holds many patterns without it. The method is implemented in C++ on top of the
+pool already holds many patterns without it.
+\pend{The choice of \cfgqual{} without harvest rests on one seed ($T=100$ with harvest, 7254 against 7249):
+repeat with three seeds. Report the sensitivity of $\rho$, $\sigma$ and the fraction of least loaded bins (data
+for $\rho$ in \texttt{results/bpp/F\_rate01.csv} and \texttt{G\_rate06.csv}), and state in one place that
+$\kappa$, $\rho$, $\sigma$, $\theta$ and $K$ were chosen on the original instances.} The method is implemented in C++ on top of the
 Metasolver framework, with HiGHS 1.15.1 as the LP and MILP solver; the recombination is
 compiled only when HiGHS is available. The code is in the branch \texttt{nico/bpp-mejoras} of \url{https://github.com/NicoFuentese/Metasolver}.
 
@@ -515,7 +503,7 @@ Fraction of least loaded bins analysed & & $0.1$\\
 Harvest threshold & $\theta$ & $0.95$\\
 Minimum filling of a block & $f_{\min}$ & $0.98$\\
 Maximum number of blocks & $N_{\max}$ & $500$\\
-VCS parameters & $\alpha,\beta,\gamma,p$ & $2.4407,\ 2.2652,\ 0.3896,\ 0.0164$\\
+VCS parameters & $\alpha,\beta,\gamma,q$ & $2.4407,\ 2.2652,\ 0.3896,\ 0.0164$\\
 Initial beam width and children per level & $w,\ m$ & $4,\ 16$\\
 Minimum base support (industrial instances) & & $0.7$\\
 \bottomrule
@@ -524,13 +512,13 @@ Minimum base support (industrial instances) & & $0.7$\\
 
 \begin{table}[t]
 \centering
-\caption{Configurations. $T$: time limit of the squeaky wheel loop; $t$: BSG time per bin;
+\caption{Configurations. $T$: time limit of the squeaky wheel loop; $\tau$: BSG time per bin;
 $K$: bins harvested per BSG call; $T_{\mathrm{milp}}$: time limit of the recombination, which adds to $T$.
 In the documentation of the code they are called F5, H20 and B100.}
 \label{tab:configs}
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-Configuration & $T$ (s) & $t$ (s) & $K$ & $T_{\mathrm{milp}}$ (s)\\
+Configuration & $T$ (s) & $\tau$ (s) & $K$ & $T_{\mathrm{milp}}$ (s)\\
 \midrule
 \cfgfast{}   & 4   & 0.005 & 10 & 30\\
 \cfgbal{}  & 20  & 0.005 & 10 & 60\\
@@ -538,17 +526,3 @@ Configuration & $T$ (s) & $t$ (s) & $K$ & $T_{\mathrm{milp}}$ (s)\\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\subsection{Relation to previous work}
-\label{sec:m-related}
-
-Choosing bins from a pool of patterns with a set covering or partitioning model is an established
-approach. \citet{Monaci2006} applied it to the two-constraint bin packing problem and to the
-two-dimensional bin packing problem without rotation, generating a small set of columns with
-constructive procedures. For three-dimensional packing, \citet{Mahvash2018} use column generation
-with a heuristic pricing method and a set partitioning model, and \citet{Elhedhli2019} use column
-generation over layers with a set covering model. In the column generation methods the patterns
-come from a pricing problem built with the dual prices of the master problem. Our patterns come
-from a search over box priorities and from the greedy completions inside BSG, and no dual
-information returns to the generator. The duals appear only after the search, to bound the pool
-and to prune it.

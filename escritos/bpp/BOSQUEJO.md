@@ -1,5 +1,10 @@
 # Bosquejo del paper de bin packing 3D (BSG_BPP)
 
+> **Estado:** la estructura de §3 ya está implementada en los `.tex` de esta carpeta (introduction, related,
+> problem, method, experiments_bpp, conclusions y apéndices). Los pendientes están marcados en el texto con
+> `\pend{}` y listados al inicio del PDF (`main.pdf`, "Pending items"). Este archivo queda como registro de
+> las decisiones.
+
 Propuesta de estructura para convertir el borrador de `escritos/bpp` (hoy: Method + Experiments + apéndice,
 31 páginas, de las cuales unas 20 son experimentos) en un paper publicable, y lista de lo que falta para
 que sea consistente. Las decisiones marcadas con **[D]** son de los autores.

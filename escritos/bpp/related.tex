@@ -1,0 +1,52 @@
+% Seccion "Related work" del paper de bin packing 3D (BSG_BPP).
+\section{Related work}
+\label{sec:related}
+
+\pend{Every statement in this section must be checked against the PDF of the cited article
+(objective, constraints, time limits, machines); several descriptions below are taken from the titles
+and from our earlier notes. Add the works published after 2019 on the 3D-BPP and the tabu search of
+Lodi et al.\ (TS3), which is cited in the tables but is not in the bibliography.}
+
+\paragraph{Exact methods and bounds.}
+\citet{Martello2000} introduced the 3D-BPP benchmark, the lower bounds $L_1$ and $L_2$ and a
+branch-and-bound method for small instances. \citet{Paquay2016} give a
+mixed integer formulation for a three-dimensional bin packing problem with additional constraints.
+Exact methods do not reach the sizes of the benchmark, which is why the comparisons in the
+literature are made between heuristics.
+
+\paragraph{Heuristics and metaheuristics.}
+\citet{Faroe2003} proposed a guided local search, \citet{Crainic2008} extreme point-based
+constructive heuristics and \citet{Crainic2009} a two-level tabu search (TS2PACK).
+\citet{Parreno2010} combined GRASP with variable neighbourhood descent (GVND), and
+\citet{Goncalves2013} a biased random key genetic algorithm (BRKGA) with a placement procedure based
+on maximal spaces; BRKGA is the reference most often used for the totals of the benchmark.
+\citet{Zhu2012SD} introduced space defragmentation for packing problems. These methods search over
+complete solutions: they move boxes between bins or reorder the sequence in which boxes are placed.
+None of them recombines bins that were produced in different iterations.
+
+\paragraph{Pattern-based methods.}
+Choosing bins from a pool of patterns with a set covering or partitioning model is an established
+approach. \citet{Monaci2006} applied it to the two-constraint bin packing problem and to the
+two-dimensional bin packing problem without rotation, generating a small set of columns with
+constructive procedures. For three-dimensional packing, \citet{Mahvash2018} use column generation
+with a heuristic pricing method and a set partitioning model, and \citet{Elhedhli2019} use column
+generation over layers with a set covering model and consider vertical support. In the column
+generation methods the patterns come from a pricing problem built with the dual prices of the master
+problem, and each pricing call is an optimisation problem in itself. Our patterns come from a search
+over box priorities and from the greedy completions inside BSG, and no dual information returns to the
+generator. The duals appear only after the search, to bound the pool and to prune it.
+
+\paragraph{Single container loading.}
+The loading of one bin is the single container loading problem, for which tree search methods are
+the state of the art \citep{Fanslau2010,Zhu2012,Araya2014,Araya2017,Guesser2026}. BSG
+\citep{Araya2014,Araya2017} is a beam search guided by a greedy algorithm, with the VCS evaluation
+function; it has been extended to biobjective loading \citep{Araya2020}. \citet{Zhao2016} compare
+container loading algorithms, and \citet{Bortfeldt2013} review the practical constraints, among them
+vertical support.
+
+\paragraph{Squeaky wheel optimisation.}
+Squeaky wheel optimisation \citep{Joslin1999} repeats a greedy construction and raises the priority of
+the elements that the construction handled badly. It has not been applied, to our knowledge, to the
+priorities of box types in bin packing.
+\pend{Check whether squeaky wheel or similar priority-learning schemes have been used in packing
+problems.}

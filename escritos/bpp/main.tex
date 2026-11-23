@@ -1,4 +1,4 @@
-﻿% Paper de bin packing 3D (BSG_BPP): borrador de las secciones Method y Experiments.
+% Paper de bin packing 3D (BSG_BPP): borrador completo. Los pendientes se marcan con \pend{} y se listan al inicio.
 % Compilar SIEMPRE desde una copia fuera del repo (ver AGENTS.md). Requiere pgfplots y MiKTeX.
 \documentclass[11pt]{article}
 \usepackage[margin=2.5cm]{geometry}
@@ -19,9 +19,15 @@
 \pgfplotsset{compat=1.16}
 \usepackage[colorlinks=true,citecolor=blue,linkcolor=blue]{hyperref}
 \newtheorem{proposition}{Proposition}
-\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\usepackage[colorinlistoftodos,textsize=footnotesize]{todonotes}
+% pendiente: nota en el texto y entrada en la lista de pendientes del inicio
+\newcommand{\pend}[1]{\todo[inline,color=orange!25]{#1}}
+\newcommand{\pendshort}[1]{\textcolor{red}{[#1]}\addcontentsline{tdo}{todo}{Table cell: #1}}
+\providecommand{\cfgfast}{\textsc{Fast}}
+\providecommand{\cfgbal}{\textsc{Balanced}}
+\providecommand{\cfgqual}{\textsc{Quality}}
 
-\title{Pattern generation and set covering recombination for the three-dimensional bin packing problem (working draft)}
+\title{Pattern generation and recombination for the three-dimensional bin packing problem}
 \author{Ignacio Araya\\[2pt]
 \small Escuela de Ingenier\'ia Inform\'atica, Pontificia Universidad Cat\'olica de Valpara\'iso,\\
 \small Avenida Brasil 2950, Valpara\'iso, Chile\\
@@ -35,10 +41,38 @@ Nicol\'as Fuentes\\[2pt]
 
 \begin{document}
 \maketitle
+
+\begin{abstract}
+We present a method for the three-dimensional bin packing problem that generates bin patterns with a
+beam search for the single container loading problem inside a squeaky wheel loop over the profits of the
+box types, enlarges the pool with the complete loads that the beam search explores and discards, and
+recombines the pool with a set covering model, or with a set partitioning model when the boxes must have
+vertical support. The LP relaxation of the pool proves in most runs that the incumbent is the best
+combination of the pool, so that the integer program is rarely needed. On the benchmark of Martello,
+Pisinger and Vigo the method obtains totals at the level of the best published ones with fixed
+orientation and below them with rotations, and on industrial instances with 70\% support on every box it
+uses 5.9\% fewer bins than a column generation over layers.
+\pend{Revise the abstract with the final figures, including the times normalised by processor.}
+\end{abstract}
+
+\noindent\textbf{Keywords:} three-dimensional bin packing; set covering; squeaky wheel optimisation;
+beam search; vertical support.
+
+\begingroup
+\renewcommand{\contentsname}{Pending items (remove before submission)}
+\listoftodos[Pending items (remove before submission)]
+\endgroup
+\clearpage
+
+\input{introduction}
+\input{related}
+\input{problem}
 \input{method}
 \input{experiments_bpp}
+\input{conclusions}
 \appendix
 \input{appendix_bpp}
+\input{appendix_extra}
 \bibliographystyle{plainnat}
 \bibliography{references}
 \end{document}

@@ -1,0 +1,62 @@
+% Seccion "Introduction" del paper de bin packing 3D (BSG_BPP).
+\section{Introduction}
+\label{sec:intro}
+
+The three-dimensional bin packing problem (3D-BPP) asks for the minimum number of identical bins that
+hold a set of rectangular boxes \citep{Martello2000}. It appears whenever goods are loaded into
+containers, trucks or pallets, and in practice it comes with constraints such as the vertical support
+of the boxes \citep{Bortfeldt2013}. The problem is strongly NP-hard, exact methods solve only small
+instances, and the benchmark of \citet{Martello2000} has been the test bed of two decades of
+heuristics.
+
+Two families of heuristics dominate the benchmark. Metaheuristics such as guided local search
+\citep{Faroe2003}, tabu search \citep{Crainic2009}, GRASP with variable neighbourhood descent
+\citep{Parreno2010} and the biased random key genetic algorithm (BRKGA) of \citet{Goncalves2013} search
+over complete solutions. Column generation methods \citep{Mahvash2018,Elhedhli2019} build bins as
+patterns with a pricing problem guided by dual prices and choose the best combination of patterns with
+a set covering or partitioning model. The first family produces many good bins during the search but
+keeps only the solution in which they appear; the second recombines bins but generates each one with
+a costly pricing problem.
+
+This paper combines the cheap generation of the first family with the recombination of the second.
+Each bin is loaded by BSG, a beam search for the single container loading problem
+\citep{Araya2014,Araya2017}, guided by profits per box type. A squeaky wheel loop \citep{Joslin1999}
+repeats the construction and raises the profits of the box types that ended in the least loaded bins.
+Every bin that the search builds is stored in a pool of patterns, together with the best complete
+loads that BSG explores and discards (the \emph{harvest}). After the search, a set covering model over
+the pool chooses the combination of bins that loads all the boxes with the fewest bins; when removing a
+box can make a bin infeasible, as with vertical support, a set partitioning model is used instead. The
+LP relaxation of the model bounds what the pool can offer: in most runs it proves that the incumbent is
+the best combination in the pool and no integer program is solved.
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item A generator of bin patterns that uses a single-bin loader inside a squeaky wheel loop over the
+  profits of the box types, and that harvests, at almost no cost, the complete loads that the loader
+  explores and discards (Sections~\ref{sec:m-construct}--\ref{sec:m-pool}).
+\item A recombination of the pool by set covering, or by set partitioning under vertical support, with
+  a stopping rule and a reduced-cost fixing derived from the LP relaxation of the pool
+  (Section~\ref{sec:m-cover}).
+\item An experimental study on the benchmark of \citet{Martello2000}, with fixed orientation and with
+  rotations, and on industrial instances with vertical support \citep{Elhedhli2019}, with an ablation
+  of the components, matched-time controls and instances held out from the design
+  (Section~\ref{sec:experiments-bpp}).
+\end{itemize}
+
+\paragraph{Summary of the results.}
+Without rotations, a configuration that runs 6.7~s per instance obtains totals at the level of BRKGA
+\citep{Goncalves2013}, and a configuration of 100~s per instance obtains 7249.3 bins on classes 1 and
+4--8, against 7252 for the column generation of \citet{Mahvash2018}. With rotations, the longer
+configuration obtains 8985.3 bins on the eight classes, against 9013 for \citet{Mahvash2018}. The
+recombination saves 10 to 13 bins with respect to the squeaky wheel loop with the same time on
+instances that were not used to design the method, and the LP of the pool proves in about 95\% of the
+runs that the pool holds no better solution. On industrial instances with 70\% support on every box,
+the method uses 5.9\% fewer bins than the column generation over layers of \citet{Elhedhli2019}.
+\pend{Update these figures when the repeated campaigns (ablation, rotations) and the industrial
+experiments with the whole pipeline are finished; normalise the times of the literature before
+writing ``at the level of BRKGA in a fraction of its time''.}
+
+\paragraph{Outline.}
+Section~\ref{sec:related} reviews the related work and Section~\ref{sec:problem} defines the problem.
+Section~\ref{sec:method} describes the method and Section~\ref{sec:experiments-bpp} the experiments.
+Section~\ref{sec:conclusions} concludes.

@@ -1,0 +1,65 @@
+\section{Variants that did not improve the method}
+\label{app:negative}
+\label{sec:e-negative}
+
+We tried other changes during the development. None of them is part of the method, and we list them because they delimit what can be expected from this approach. The tests were run
+with earlier versions of the code, with fewer seeds and on the sets used for development (the 72 original instances of classes 1 and 4--8 with sizes 50 to 200 and the first three instances of each cell,
+unless the table says otherwise), and the raw files of some of them were not preserved. The numbers are those obtained then.
+
+\begin{table}[t]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Variants tested and discarded. ``Base'' is the method without the variant under the same budget.}
+\label{tab:e-negative}
+\begin{tabular}{@{}p{3.7cm}p{4.0cm}p{7.2cm}@{}}
+\toprule
+Variant & Test & Result\\
+\midrule
+Swaps and transfers of one or two boxes between two bins, accepted by the sum of squares of the loads & 72 original instances, $T=10$ s, five seeds & 2181.4 against 2178.0 for the base ($+3.4$, $p=0.038$); it removes zero to two bins in the 72 instances\\
+Random subset of boxes for each bin (a multiple $r$ of the volume of the bin) & same, two seeds & $r=2$: 2281.0 ($+4.7\%$); $r=1.5$: 2330.5 ($+7\%$)\\
+Random exponent $\kappa$ at each iteration of the loop & same, three to five seeds & spread 0.5: 2178.8 ($p=0.53$); spread 1: 2181.0 ($+3.0$, $p=0.042$)\\
+Keep the weights of the incumbent (undo the update when the solution is worse) & same, two seeds & 2184.5 against 2178.0 ($p=0.023$)\\
+Geometric prior on the profit of the boxes & same, three seeds, $T=10$ s & 2177.7 and 2178.7 against 2178.0 ($p=0.75$ and $0.35$)\\
+Improvement phase (Appendix~\ref{app:improve}) instead of squeaky wheel & 72 generated instances, about 20 s & construction 2172; with the improvement phase 2168; squeaky wheel loop 2139; half of the time for each 2142\\
+Column generation with dual prices as profits for BSG, then the MILP & 240 original instances, three seeds & 7263.7 with squeaky wheel 10 s, generation 20 s and MILP 60 s, against 7256.0 with squeaky wheel 33 s and MILP 60 s ($p=0.0011$)\\
+Squeaky wheel loop guided by the dual prices & 36 generated instances (classes 1, 5, 8), $T=20$ s & 987 bins against 986 ($p=0.79$)\\
+Recombination with a subproblem (large neighbourhood search) & 24 generated instances, 500 and 1000 boxes & 4071 and 4070 against 4072, with 68\% and 87\% more time ($p=0.56$ and $0.32$)\\
+Window of the 1000 columns of lowest reduced cost in the MILP & same & 4072 against 4070 with the complete model, 36\% less time\\
+Filter of dominated columns & 240 original instances, two seeds & 7254 and 7258 against 7254 and 7257; it removes 16\% of the columns and the MILP time goes from 7.98 to 7.76 s\\
+Partition model instead of covering (compatible with support) & 80 small industrial instances & 112 bins with both; they differ in four instances, two for each\\
+Repacking of the least loaded bins as a subproblem & bins of the final solutions of the 240 original instances & five bins: 2 of 224 instances improved; eight bins: 0 of 208\\
+Union of the pools of the three seeds & 240 original instances, MILP limit 30 s & 7254 bins, against 7253 for the best of the three seeds on each instance\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two results are worth stressing. The column generation with dual prices, the usual way to generate patterns, is worse than spending the same time in the squeaky wheel loop and recombining its bins, at least with 20 s for the
+generation, which does not tell us how it would behave with a budget of the order of 1000 s as the one of \citet{Mahvash2018}. And the improvement phase that removes a bin by ruin and recreate, effective when the bins have a large slack as in the industrial instances,
+loses against giving the time to the squeaky wheel loop in the benchmark of \citet{Martello2000}, where the bins have a slack of about 5\%.
+The option that stops the search when the LP of the pool proves the incumbent optimal for the pool is not a negative result but a trade of quality for time: on 192 generated instances it reduces the mean time by 14\% (31.3 s against 36.2 s) and
+increases the total by four bins in 5870 (0.07\%, $p=0.22$), so we do not include it in the three configurations.
+
+\section{Improvement phase for instances with few bins}
+\label{app:improve}
+
+\pend{Decide whether this phase stays in the method. It is used only for the small industrial instances; if the squeaky wheel loop with the partitioning model matches it there, remove it.}
+
+When a solution has only a few bins, as in the small industrial instances, the search can be
+followed by a phase that tries to remove one bin. It receives the part of the time limit $T$ that
+the squeaky wheel loop does not use (30\% of $T$ goes to the loop and 70\% to this phase in the
+experiments on small industrial instances); in the three configurations of Table~\ref{tab:configs}
+the loop uses all of $T$ and the phase does not run. The bins are taken as target one at a time,
+from the least loaded, and the boxes of the target are the pending boxes to be inserted into the
+other bins. For each fraction $\phi\in\{0.3,0.6,0.9\}$ and for each of the other bins, again from
+the least loaded, boxes with no box above them are removed, highest first, until a fraction $\phi$
+of the loaded volume of the bin is out. BSG then reloads the bin with the remaining boxes fixed in
+their positions and the pending boxes available, and the new load replaces the old one if it has
+more profit (ties are broken by volume). As an option, every bin is first reloaded from scratch with
+its boxes and the pending ones, with the same acceptance rule. If every pending box is inserted, the
+target disappears. Otherwise, if BSG can load all the pending boxes in one bin and the sum of the
+squares of the loaded volumes increases, the change is accepted, because it prepares the removal of
+a bin in the next attempts. When a complete pass over the targets changes nothing, the boxes
+removed and the fraction $\phi$ (uniform in $[0.2,0.9]$) are drawn at random instead. The phase
+stops when the number of bins reaches $\mathrm{LB}$ or the time is over. The calls to BSG in this
+phase last $\mu\tau$, with $\mu=2$ in the experiments on small industrial instances. On the other
+instances the phase did not improve the results (Section~\ref{sec:e-negative}).
