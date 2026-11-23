@@ -11,33 +11,40 @@ que sea consistente. Las decisiones marcadas con **[D]** son de los autores.
 - La sección de experimentos (~870 líneas) es el doble de Method y cuenta la historia del proyecto
   (campañas anteriores, archivos perdidos, prototipo en Python, deriva entre campañas) en vez de responder
   preguntas. Las advertencias se repiten en el setup, en los resultados y en la discusión.
-- No hay una tesis explícita. Los resultados más fuertes (rotaciones, industriales) no usan o usan poco el
+- No hay una tesis explícita (resuelto en §2). Los resultados más fuertes (rotaciones, industriales) no usan o usan poco el
   componente que el título destaca (la recombinación), y el más débil (sin rotación, +4 a −3 contenedores
   frente a Mahvash) es el que se presenta primero.
 
-## 2. Tesis propuesta **[D]**
+## 2. Tesis (decidida: tesis unificada)
 
-> Un generador barato de patrones (construcción guiada por beneficios + squeaky wheel sobre las prioridades
-> de las cajas + harvest de las cargas que BSG ya construye) seguido de un set covering sobre el pool da
-> resultados al nivel del estado del arte en el 3D-BPP en una fracción del tiempo, y el LP del pool dice
-> cuándo dejar de recombinar.
+> Los contenedores se generan con un cargador de un contenedor (BSG) que respeta cualquier restricción de
+> carga, guiado por beneficios por tipo de caja que ajusta un squeaky wheel; las cargas que BSG ya construye
+> (harvest) amplían el pool, y un modelo de cubrimiento (sin apoyo vertical) o de partición (con apoyo)
+> recombina el pool. El LP del pool indica cuándo dejar de recombinar.
 
-Tres mensajes que la evidencia actual sostiene:
-1. **Calidad–tiempo**: Fast (6.7 s/instancia) obtiene 7256.7 contra 7258 de BRKGA (hasta 130 s en otra
-   máquina); Quality (100 s) obtiene 7249.3, bajo Mahvash (7252). Falta normalizar los tiempos (ver §4.C).
-2. **Rotaciones**: Quality obtiene 8985.3 contra 9013 de Mahvash en las 320 instancias (−0.31 %).
-   Hoy viene de campañas sin archivos crudos: hay que repetirla antes de que sea el resultado principal.
-3. **Recombinación con prueba**: el LP del pool demuestra en ~95 % de las corridas que el incumbente es el
-   mejor del pool, y la recombinación ahorra 10–13 contenedores frente al squeaky wheel con el mismo tiempo
-   en muestras que no se usaron para diseñar (clases 2–3, conjuntos ciegos).
+La misma tubería se aplica a los dos escenarios; solo cambian las restricciones que respeta BSG y el modelo
+de recombinación:
 
-Alternativa **[D]**: si los industriales con soporte son el resultado que más interesa (−5.9 % frente a
-LCGA), la tesis cambia a "construcción guiada por beneficios con soporte" y la recombinación pasa a
-segundo plano. Mezclar las dos tesis es lo que hoy hace que el texto se lea como un informe.
+| | Martello et al. (sin apoyo) | Industriales (70 % de apoyo) |
+|---|---|---|
+| Cargador | BSG | BSG con el criterio de área |
+| Squeaky wheel + harvest | sí | **falta medirlo** (hoy: construcción sola para n ≥ 500) |
+| Recombinación | cubrimiento: se sacan las cajas sobrantes | partición: no se saca ninguna caja (`--partition`) |
+| Proposición 1 (cota del LP y poda) | vale (duales ≥ 0) | vale (duales libres; la demostración usa la igualdad) |
 
-Revista objetivo **[D]**: con estas mejoras (fracciones de punto porcentual) y un método simple, encaja
-mejor en Computers & Operations Research, ITOR o EJOR (sección de heurísticas) con el argumento de
-calidad–tiempo; para EJOR conviene que la tesis 2 (rotaciones) quede respaldada con archivos.
+Mensajes que la evidencia sostiene o debe sostener:
+1. **Calidad–tiempo sin apoyo**: Fast (6.7 s/instancia) obtiene 7256.7 contra 7258 de BRKGA (hasta 130 s
+   en otra máquina); Quality (100 s) obtiene 7249.3, bajo Mahvash (7252). Falta normalizar los tiempos (§4.C).
+2. **Rotaciones**: Quality obtiene 8985.3 contra 9013 de Mahvash (−0.31 %). Repetir con archivos crudos.
+3. **Recombinación con prueba**: el LP demuestra en ~95 % de las corridas que el incumbente es el mejor del
+   pool; la recombinación ahorra 10–13 contenedores frente al squeaky wheel a igual tiempo en muestras
+   independientes del diseño.
+4. **Generalidad**: con apoyo vertical, la misma tubería (con partición) se compara con LCGA (−5.9 % con la
+   construcción sola). Falta la evidencia de que el squeaky wheel y la partición aportan o al menos no
+   empeoran a igual tiempo (§4.F).
+
+Revista objetivo **[D]**: C&OR, ITOR o EJOR (sección de heurísticas). La tesis unificada (método general
+para restricciones de carga) es más atractiva para EJOR si el punto 4 queda respaldado.
 
 ## 3. Estructura propuesta (~25 páginas + apéndice)
 
@@ -63,7 +70,7 @@ Sección 5 propuesta, organizada por preguntas:
 | 5.4 | ¿Qué aporta cada componente? | Ablación con control a igual tiempo; harvest según presupuesto | Ablación en curso (`results/bpp/ablation_2026-11`) |
 | 5.5 | ¿Cómo se comporta la recombinación? | Prueba por LP, poda, cota del pool, MILP plano contra MILP con objetivo | Existe (2.º conjunto ciego); falta medir la poda por separado |
 | 5.6 | ¿Generaliza? | Clases 2–3 y conjuntos ciegos | Existe; repetir el 1.er conjunto ciego o eliminarlo |
-| 5.7 | Instancias industriales con soporte | `tab:e-ind`, costo del soporte | Existe; ver §4.F |
+| 5.7 | ¿Funciona la misma tubería con apoyo vertical? | `tab:e-ind`, squeaky wheel y partición a igual tiempo, costo del soporte | Falta el experimento de §4.F |
 | 5.8 | Límites | Instancias grandes, cota del pool | Existe |
 
 ## 4. Lo que falta para que sea consistente
@@ -116,15 +123,25 @@ Sección 5 propuesta, organizada por preguntas:
 - [ ] La verificación final (`check`) no revisa el apoyo vertical, aunque el texto dice que la solución se
       verifica caja por caja; el validador de apoyo (en Python) no está en el repositorio.
 
-### F. Instancias industriales
-- [ ] La recombinación, que es la contribución del título, no se usa con soporte. Decidir **[D]**: (a) dejar
-      los industriales como una sección de aplicación de la construcción, (b) usar el modelo de partición
-      (compatible con soporte; ya probado en instancias pequeñas sin ganancia) también en n ≥ 500, o (c)
-      sacarlos a otro paper.
+### F. Instancias industriales (necesario para la tesis unificada)
+- [x] Modelo de partición en C++ (`--partition`, compatible con `--support`). Probado en instancias de
+      Martello con `--support area`: soluciones válidas y todas las cajas apoyadas. La verificación interna
+      (`check`) ahora revisa también el apoyo por área.
+- [ ] Subir al repositorio las 160 instancias industriales (y las 72 adicionales), su convertidor y el
+      validador de apoyo.
+- [ ] Experimento a igual tiempo en las 80 instancias con n ≥ 500 (apoyo 70 %, κ=1): construcción sola con
+      t=2 s (~18 s) contra squeaky wheel con t=0.2 s y t=0.5 s y T=18 s, con y sin `--partition`; repetir con
+      un presupuesto de ~60 s. Si el squeaky wheel no compensa la pérdida por bajar t, decirlo y explicar
+      por qué (una construcción ya cuesta 18 s).
+- [ ] Partición en las industriales con n < 500 (hoy 112 contra 112 sin ganancia, con el prototipo).
+- [ ] Reescribir en `method.tex` el párrafo "Vertical support" y la reparación: hoy dicen que la recombinación
+      es incompatible con el apoyo; pasa a ser "con apoyo se usa la partición". Extender la Proposición 1 al
+      caso de igualdad (duales libres) en una línea.
+- [ ] La fase de mejora (ruina y reconstrucción) solo se usa en las industriales pequeñas: si el squeaky wheel
+      con partición la iguala, eliminarla del método.
 - [ ] No se pudo verificar que las instancias sean las de Elhedhli et al.: pedirlas a los autores.
 - [ ] El criterio de soporte de LCGA es distinto (tolerancia de 5 mm, soporte no exigido a todas las cajas):
-      la comparación debe hacerse con el mismo criterio o limitarse a "nuestro criterio es más estricto".
-- [ ] Subir el convertidor de instancias y el validador de apoyo.
+      decir que el nuestro es más estricto o comparar con el mismo criterio.
 
 ### G. Reproducibilidad
 - [ ] Un script por tabla y figura que lea los resultados crudos (hoy el encabezado de
@@ -143,8 +160,9 @@ Sección 5 propuesta, organizada por preguntas:
 
 ## 5. Orden de trabajo sugerido
 
-1. Decidir la tesis, el lugar de los industriales y la revista (**[D]**).
-2. Terminar la ablación y repetir las rotaciones con el protocolo; subir los resultados de noviembre.
+1. ~~Decidir la tesis~~ (unificada); decidir la revista (**[D]**).
+2. Terminar la ablación y repetir las rotaciones con el protocolo; subir los resultados de noviembre;
+   subir las instancias industriales y correr el experimento de §4.F.
 3. Corregir notación y discrepancias código–texto (§4.D, §4.E).
 4. Scripts de tablas y figuras desde los resultados crudos.
 5. Escribir Introduction, Related work, Problem definition y Conclusions.

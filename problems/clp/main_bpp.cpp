@@ -198,6 +198,9 @@ static bool keep_pool=false;
 //--harvest K: de los greedy que ejecuta el BSG en cada llamada de la construccion (cada uno es un
 //contenedor completo) se agregan al pool los K mas cargados que lleguen al menos a harvest_thr del mejor
 static int harvest_k=0;
+//--partition: recombinacion con un modelo de particion (cada caja exactamente una vez) en vez de cubrimiento; no
+//saca cajas, asi que es compatible con el soporte vertical
+static bool partition_model=false;
 static double harvest_thr=0.95;
 
 /**
@@ -310,6 +313,16 @@ static bool check(const vector<Load>& loads, const vector<int>& total){
 			for(size_t j=i+1; j<B.size(); j++){
 				AABB bj(B[j].xmin, B[j].ymin, B[j].zmin, B[j].xmax, B[j].ymax, B[j].zmax);
 				if(ai.strict_intersects(bj)){ cerr << "boxes intersect" << endl; return false; }
+			}
+			//--support area: al menos min_overlap de la base se apoya directamente en las caras superiores de otras cajas
+			if(clpState::area_support && a.zmin>0){
+				double direct=0;
+				for(size_t j=0; j<B.size(); j++){
+					if(j==i || B[j].zmax!=a.zmin) continue;
+					long dx=min(a.xmax, B[j].xmax)-max(a.xmin, B[j].xmin), dy=min(a.ymax, B[j].ymax)-max(a.ymin, B[j].ymin);
+					if(dx>0 && dy>0) direct+=(double) dx*dy;
+				}
+				if(direct < clpState::min_overlap*(double)(a.xmax-a.xmin)*(a.ymax-a.ymin)-1e-9){ cerr << "box without support" << endl; return false; }
 			}
 		}
 	}
@@ -458,7 +471,8 @@ static HighsModel cover_model(const vector<const Load*>& cols, const vector<int>
 	lp.col_lower_.assign(m, 0.0);
 	lp.col_upper_.assign(m, kHighsInf);
 	lp.row_lower_.assign(total.begin(), total.end());
-	lp.row_upper_.assign(nt, kHighsInf);
+	if(partition_model) lp.row_upper_.assign(total.begin(), total.end());
+	else lp.row_upper_.assign(nt, kHighsInf);
 	//matriz por columnas (start_ ya trae el primer 0 de HiGHS: se reinicia explicitamente)
 	lp.a_matrix_.format_=MatrixFormat::kColwise;
 	lp.a_matrix_.num_col_=m; lp.a_matrix_.num_row_=nt;
@@ -488,7 +502,7 @@ static bool cover_solution(const vector<const Load*>& cols, const vector<double>
 		int have=0;
 		for(const Load& b : bins) have+=b.boxes[t];
 		int ex=have-total[t];
-		if(ex<0) return false;
+		if(ex<0 || (partition_model && ex>0)) return false;
 		for(int i=(int)bins.size()-1; i>=0 && ex>0; i--){
 			Load& b=bins[i];
 			for(int q=(int)b.placed.size()-1; q>=0 && ex>0; q--)
@@ -561,9 +575,14 @@ static bool lp_cover(const vector<const Load*>& cols, const vector<int>& total, 
 	const HighsSolution& s=highs.getSolution();
 	x=s.col_value; pi=s.row_dual;
 	z=highs.getInfo().objective_function_value;
-	//en un cubrimiento (minimo, >=) los precios duales son >= 0: se corrige el signo si hace falta
 	double dot=0;
 	for(int t=0; t<nt; t++) dot+=pi[t]*total[t];
+	if(partition_model){
+		//particion (filas =): los precios duales son libres; se elige el signo con el que z = sum_t pi_t d_t
+		if(fabs(-dot-z) < fabs(dot-z)) for(double& v : pi) v=-v;
+		return true;
+	}
+	//en un cubrimiento (minimo, >=) los precios duales son >= 0: se corrige el signo si hace falta
 	if(dot<0) for(double& v : pi) v=-v;
 	for(double& v : pi) if(v<0) v=0;
 	return true;
@@ -669,6 +688,7 @@ int main(int argc, char** argv){
 	args::ValueFlag<double> _adapt_stall(parser, "double", "With --adapt: stop after this many seconds without the LP decreasing by 0.01. Default: 6", {"adapt_stall"});
 	args::ValueFlag<int> _harvest(parser, "int", "With --milp or --pool: add to the pool the K most loaded complete bins found by the greedy runs inside each BSG call of the construction (distinct, at least --harvest_thr of the best). Default: 0 (only the bin chosen by the BSG)", {"harvest"});
 	args::ValueFlag<double> _harvest_thr(parser, "double", "With --harvest: minimum volume relative to the best bin of the call. Default: 0.95", {"harvest_thr"});
+	args::Flag _partition(parser, "partition", "With --milp: set partitioning model (every box exactly once) instead of set covering; no box is removed, so it is compatible with --support", {"partition"});
 	args::Flag _milp_plain(parser, "milp_plain", "With --milp: plain MILP (minimize the number of bins with a warm start) instead of the target version (LP proof, reduced-cost fixing and sum(x) <= UB-1)", {"milp_plain"});
 	args::ValueFlag<string> _support(parser, "string", "Vertical support: none, full (the whole base of every box rests on the floor or on flat tops), corners (the four bottom corners rest on boxes or on the floor, as in BSG_ULD) or area (at least min_overlap, by default 0.7, of the base rests on boxes). Default: none", {"support"});
 	args::ValueFlag<double> _min_overlap(parser, "double", "With --support area: minimum proportion of the base of every box that rests on boxes. With --support corners: a box is also supported if this proportion of its base rests on boxes (BSG_ULD). Default: 0.7 with area, 0 otherwise", {"min_overlap"});
@@ -721,7 +741,8 @@ int main(int argc, char** argv){
 	string support=(_support)? _support.Get() : "none";
 	if(support!="none" && support!="full" && support!="corners" && support!="area"){ cerr << "Invalid support: " << support << endl; return 1; }
 	//la recombinacion por cobertura saca las cajas que quedan cubiertas de mas: con soporte vertical podria dejar cajas sin apoyo
-	if((milp_time>0 || _adapt) && support!="none"){ cerr << "ERROR: --milp and --adapt need --support none (removing surplus boxes can leave the boxes above them without support)" << endl; return 1; }
+	partition_model=_partition;
+	if((milp_time>0 || _adapt) && support!="none" && !partition_model){ cerr << "ERROR: --milp and --adapt need --support none or --partition (removing surplus boxes can leave the boxes above them without support)" << endl; return 1; }
 	if(_adapt && !(milp_time>0)){ cerr << "ERROR: --adapt needs --milp" << endl; return 1; }
 	clpState::support=(support!="none");
 	clpState::corner_support=(support=="corners" || support=="area");
