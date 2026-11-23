@@ -1,0 +1,3 @@
+n_bins 49 lb 47 construction 50 swo 50 t_construction 20.2492 time 28.1025
+stats swo 65 elim 0 partial 0 tries 0 ruin 0 scratch 0 bsg_calls 3320 harvest 0
+milp cols 2417 bins 49 improved 1 t_milp 7.85326 lp 48.3789 kept 2385 lp_proof 1 proven 1
