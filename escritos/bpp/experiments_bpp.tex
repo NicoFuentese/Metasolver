@@ -20,7 +20,7 @@ Section~\ref{sec:e-discussion} states what the evidence supports and where it is
 
 \paragraph{Summary of the results.}
 Table~\ref{tab:e-summary} collects the main figures against the best totals that we found in the literature for each setting. Without rotations the method is at the level of the
-published methods and not clearly above them: the two shorter configurations are 4 to 5 bins above the column generation of \citet{Mahvash2018} (0.06\%) and one to two bins below BRKGA, and only the long one is below both. With rotations
+published methods and not clearly above them: the two shorter configurations are 4 to 5 bins above the column generation of \citet{Mahvash2018} (0.06\%) and one to two bins below BRKGA, and only the long one, \cfgqual{}, is below both (by 2.7 and 8.7 bins). With rotations
 the long configuration is below the total of \citet{Mahvash2018} in the eight classes, and in the industrial instances with the 70\% support on every box the construction alone uses 5.9\% fewer bins than LCGA for $n\ge 500$.
 Our figures were obtained on one machine (Intel Core i5-14400) with three seeds per configuration and four runs in parallel under the protocol of Section~\ref{sec:e-setup}; the industrial rows are one run per
 instance with two runs in parallel. The rows marked with $^\dagger$ come from earlier campaigns run under other loads, whose raw files were not kept, so their figures are not strictly comparable with the others
@@ -38,9 +38,9 @@ $^\dagger$ Campaign whose raw files were lost. $^\ddagger$ BRKGA with rotations 
 Setting & Ours & Reference & Difference\\
 \midrule
 Fixed orientation, classes 1 and 4--8 (240 instances) &
-\cfgfast{} 7256.7 (6.7 s); \cfgbal{} 7256.0 (25.9 s); \cfgqual{}$^\dagger$ 7250.0 (110 s) &
+\cfgfast{} 7256.7 (6.7 s); \cfgbal{} 7256.0 (25.9 s); \cfgqual{} 7249.3 (100 s) &
 Mahvash 7252; BRKGA 7258; SD 7269; LCGA 7284 &
-$+4.7$, $+4.0$ and $-2.0$ with respect to Mahvash\\
+$+4.7$, $+4.0$ and $-2.7$ with respect to Mahvash\\
 \addlinespace
 Rotations, classes 1 and 4--8 (240) &
 \cfgfast{}$^\dagger$ 6840.0 (7.2 s); \cfgqual{}$^\dagger$ 6831.0 (98.2 s) &
@@ -130,7 +130,7 @@ Used in & Instances & Configurations & Seeds & Parallel runs & Raw files\\
 \midrule
 Tables~\ref{tab:e-main}, \ref{tab:e-within}, \ref{tab:e-time} and \ref{tab:e-harvest} & 240 original (classes 1, 4--8) & \cfgfast{}, \cfgfast{} without harvest, \cfgbal{} & 1--3 & 4 & kept\\
 \addlinespace
-\cfgqual{} in Tables~\ref{tab:e-summary}, \ref{tab:e-main} and \ref{tab:e-budget} & 240 original & \cfgqual{} & 1--3 & 4 & \todo{kept when the run ends}\\
+Tables~\ref{tab:e-summary}, \ref{tab:e-main} and \ref{tab:e-budget} (\cfgqual{}) & 240 original & \cfgqual{} & 1--3 & 4 & kept\\
 \addlinespace
 Table~\ref{tab:e-recomb} & 128 generated (second blind set) & \cfgfast{}, \cfgfast{} without harvest, \cfgbal{}, \cfgbal{} with plain MILP, squeaky wheel alone & 1 & \todo{?} & kept\\
 \bottomrule
@@ -146,9 +146,9 @@ a single $p$-value is given for several seeds, it is computed on the mean of eac
 
 The $p$-values and standard deviations of the repetition of \cfgfast{}, \cfgfast{} without harvest and \cfgbal{} on the 240 original instances (three seeds, four runs in parallel, no invalid solution and no error) were computed from its stored files.
 For the earlier campaigns, those whose files were kept (classes 2 and 3, the first set of generated instances, the prototype run on the original instances in Table~\ref{tab:e-milp} and the experiment on large instances) were recomputed in the same way, and the
-others come from the first analysis of each campaign because the raw files were lost (\cfgqual{}, the first blind set, the rotations with three seeds and the ablation). The controls without recombination
+others come from the first analysis of each campaign because the raw files were lost (the first blind set, the rotations with three seeds and the ablation). \cfgqual{} on the original instances was also repeated (three seeds, four runs in parallel, no invalid solution and no error) and its figures come from its stored files. The controls without recombination
 (``squeaky wheel alone'') use the same code with a time limit $T$ equal to the mean time of the configuration they are compared with.
-\todo{repeat \cfgqual{}, the rotation campaigns and the ablation saving the raw files, or keep this caveat}
+\todo{repeat the rotation campaigns and the ablation saving the raw files, or keep this caveat}
 
 \paragraph{Reproducibility.}
 Every run has the form
@@ -196,28 +196,29 @@ and the number of runs differ from ours, so the times are not comparable one to 
 Table~\ref{tab:e-main} compares three configurations of the method (Table~\ref{tab:configs}) with the
 literature on classes 1 and 4--8. The fast configuration \cfgfast{}, which runs 6.7 s per instance on
 average, obtains 7256.7 bins, 1.3 bins below the BRKGA total (7258). \cfgbal{}, with 25.9 s, obtains 7256.0; the difference between the two
-(0.7 bins) is not significant ($p=0.48$ on the means of the instances; per seed $-1$, $+1$ and $-2$ bins). \cfgqual{}, with 110 s, obtained 7250.0 in an earlier campaign
-whose raw files were lost, so it is not directly comparable with the other two (see below). Of the methods in the table, only \cfgqual{} is below the
-total of \citet{Mahvash2018} (7252), by two bins, with a different machine and an unknown number of runs on their side. We do not claim
-that the method is better than theirs without rotation: \cfgfast{} and \cfgbal{} are 4.7 and 4.0 bins above it.
+(0.7 bins) is not significant ($p=0.48$ on the means of the instances; per seed $-1$, $+1$ and $-2$ bins). \cfgqual{}, with 100 s, obtains 7249.3 in the same protocol (7248, 7250 and 7250 in the three seeds), 7.3 bins below \cfgfast{} ($p=0.0005$ on the means of the instances; better in 16 instances, worse in 1)
+and 6.7 below \cfgbal{} ($p=0.003$; 16 and 1). Of the methods in the table, only \cfgqual{} is below the
+total of \citet{Mahvash2018} (7252), by 2.7 bins, with a different machine and an unknown number of runs on their side. We do not claim
+that the method is better than theirs without rotation: \cfgfast{} and \cfgbal{} are 4.7 and 4.0 bins above it, and the margin of \cfgqual{} is of the order of the
+difference that we observed between campaigns (see below).
 
 Cell by cell (Appendix~\ref{app:cells}), \cfgfast{} is below the BRKGA total in 7 of the 24 cells, equal in 13 and above in 4;
-\cfgbal{} in 8, 12 and 4; \cfgqual{} (earlier campaign) in 11, 10 and 3. By class, \cfgqual{} is below the BRKGA total in classes 1, 5 and 8 (1269.7
-against 1272, 701.3 against 704 and 806.3 against 810), equal in classes 4 and 6 (2940 and 949.0) and 0.7 above in class 7 (583.7 against 583).
+\cfgbal{} in 8, 12 and 4; \cfgqual{} in 11, 11 and 2. By class, \cfgqual{} is below the BRKGA total in classes 1, 5, 6, 7 and 8 (1270.0
+against 1272, 701.3 against 704, 948.7 against 949, 582.7 against 583 and 806.7 against 810) and equal in class 4 (2940).
 In class 4 all our configurations obtain 2940 bins, as BRKGA does; Section~\ref{sec:e-recomb} reports that in the ten instances with 50 boxes of that class an exact cover
 over all the feasible loads of at most four boxes also gives 294 bins.
 
 The cells in which the method is above BRKGA are few and the differences are small. \cfgfast{} is above in class 6 with 50 and 150 boxes (98 against 97 and 291.3 against 290), in class 7 with 100 boxes (123 against 122)
-and in class 8 with 200 boxes (294.7 against 293); \cfgbal{} is above in the same four cells (98, 291.3, 123.3 and 294). The excess is between 1 and 1.7 bins in cells whose totals go from 98 to 295. In the earlier campaign the long
-configuration was below BRKGA in class 8 with 200 boxes (291.3 against 293), 0.3 above in class 6 with 150 boxes and one bin above in the other two, so only part of the gap in these cells disappears with more time.
+and in class 8 with 200 boxes (294.7 against 293); \cfgbal{} is above in the same four cells (98, 291.3, 123.3 and 294). The excess is between 1 and 1.7 bins in cells whose totals go from 98 to 295. \cfgqual{} is below BRKGA in class 8 with 200 boxes (291.7 against 293)
+and in class 6 with 150 boxes it equals it (290 against 290), and it remains above only in class 6 with 50 boxes (98 against 97) and in class 7 with 100 boxes (122.7 against 122), so most of the gap in these cells disappears with more time.
 We have not studied why the method behaves worse in them.
 
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
 \caption{Total number of bins on the 240 original instances (classes 1 and 4--8, fixed orientation; Intel i5-14400, four runs in parallel). Ours: mean and
-standard deviation over three seeds; time per instance, mean (maximum). \cfgfast{} and \cfgbal{} were repeated in November 2026 with the raw files stored;
-$^\dagger$ \cfgqual{} comes from an earlier campaign (raw files lost). Literature: totals published, other machines.}
+standard deviation over three seeds; time per instance, mean (maximum). \cfgfast{}, \cfgbal{} and \cfgqual{} come from the campaigns of November 2026, with the raw files stored.
+Literature: totals published, other machines.}
 \label{tab:e-main}
 \begin{tabular}{@{}lrll@{}}
 \toprule
@@ -225,7 +226,7 @@ Method & Bins & Time per instance & Machine\\
 \midrule
 \cfgfast{} (ours) & $7256.7\pm 0.6$ & 6.7 s (34 s) & i5-14400\\
 \cfgbal{} (ours) & $7256.0\pm 1.0$ & 25.9 s (80 s) & i5-14400\\
-\cfgqual{} (ours)$^\dagger$ & $7250.0\pm 1.0$ & 110 s ($\approx$200 s) & i5-14400\\
+\cfgqual{} (ours) & $7249.3\pm 1.2$ & 100.3 s (201 s) & i5-14400\\
 \midrule
 \citet{Mahvash2018} & 7252 & not reported & Intel 2.2 GHz\\
 \citet{Goncalves2013}, BRKGA & 7258 & up to 130.6 s & i7-2630QM 2 GHz\\
@@ -238,13 +239,13 @@ Method & Bins & Time per instance & Machine\\
 Figure~\ref{fig:e-curve} shows quality against time. The recombination adds nothing at the smallest budget
 without the harvest (a run of 10 s with a recombination limit of 20 s gives 7272 bins, one more than the squeaky wheel alone with 13 s),
 which is why the harvest matters (Section~\ref{sec:e-ablation}). With larger budgets the squeaky wheel loop alone is clearly above the configurations with recombination:
-7268.7 with 35 s against 7256.0 in the comparison of Table~\ref{tab:e-milp}, and, with one seed, 7267 with 104 s against 7249 with 110 s
+7268.7 with 35 s against 7256.0 in the comparison of Table~\ref{tab:e-milp}, and, with one seed, 7267 with 104 s against 7249 with 110 s in an earlier campaign
 (better in 19 instances, worse in 1, $p=0.0001$) (Table~\ref{tab:e-budget}).
 The repetition also changes how the budgets compare. In the earlier campaign \cfgfast{} and \cfgbal{} obtained 7259.3 and 7253.0, 6.3 bins apart; with the same code and options they obtained
 7256.7 and 7256.0 in the repetition, and the difference between them is not significant. The differences between the two campaigns (2.6 and 3.0 bins) are larger than the standard deviation between seeds
 inside each campaign (0.6 to 2.1 bins). We attribute them to the different load of the machine (Section~\ref{sec:e-setup}) but we did not isolate the cause, and for that reason the comparisons
-between configurations are made inside one campaign. \cfgqual{} (7250.0) belongs to the earlier campaign: it is 6 bins below the repeated \cfgbal{} and it was 3 bins below the earlier one ($p=0.18$),
-so its advantage under equal conditions is not known. A run of 211 s (7247, one seed) improves a run of 111 s (7249 in that seed) by two bins ($p=0.73$).
+between configurations are made inside one campaign. \cfgqual{} was repeated as well: it obtained 7249.3, against 7250.0 in the earlier campaign, so unlike the other two it did not move between campaigns.
+Its advantage over the repeated \cfgbal{} is 6.7 bins, against 3.0 in the earlier campaign. A run of 211 s (7247, one seed) improves a run of 111 s (7249 in that seed) by two bins ($p=0.73$).
 
 \begin{figure}[t]
 \centering
@@ -253,7 +254,7 @@ so its advantage under equal conditions is not known. A run of 211 s (7247, one 
   xlabel={Mean time per instance (s)},ylabel={Total bins, classes 1 and 4--8},grid=major,
   legend style={font=\footnotesize,at={(0.98,0.98)},anchor=north east},tick label style={font=\footnotesize}]
 \addplot[only marks,mark=*,mark size=2.2pt,error bars/.cd,y dir=both,y explicit]
-  coordinates {(6.7,7256.7) +- (0,0.6) (25.9,7256.0) +- (0,1.0) (110.0,7250.0) +- (0,1.0)};
+  coordinates {(6.7,7256.7) +- (0,0.6) (25.9,7256.0) +- (0,1.0) (100.3,7249.3) +- (0,1.2)};
 \addlegendentry{recombination, 3 seeds}
 \addplot[only marks,mark=square*,mark size=2.2pt] coordinates {(12.6,7272) (41.9,7255) (60.2,7255) (107.8,7254) (211.3,7247)};
 \addlegendentry{recombination, 1 seed}
@@ -266,7 +267,7 @@ so its advantage under equal conditions is not known. A run of 211 s (7247, one 
 \end{axis}
 \end{tikzpicture}
 \caption{Total bins against mean time per instance on the 240 original instances. Circles: \cfgfast{}, \cfgbal{}
-and \cfgqual{} (three seeds, bars: standard deviation; the first two come from the repetition and \cfgqual{} from an earlier campaign). Squares, one seed: budget 10 s with recombination
+and \cfgqual{} (three seeds, bars: standard deviation; all three from the campaigns of November 2026). Squares, one seed: budget 10 s with recombination
 limit 20 s, a run with $T=33$ s and $T_{\mathrm{milp}}=60$ s, and runs of $T=50$ and $T=100$ with the harvest, and $T=200$
 (Table~\ref{tab:e-budget}). Triangles: squeaky wheel alone with the time given (13, 18.8, 34.8 and 103.7 s; the second
 with two seeds, the third with three, the others with one). The horizontal lines are totals from the literature,
@@ -279,8 +280,8 @@ whose times are not comparable.}
 \small\setlength{\tabcolsep}{3pt}
 \caption{Budgets on the 240 original instances (classes 1 and 4--8). $T$, $T_{\mathrm{milp}}$: time limits of the search and
 the recombination; $K$: harvest; $t=0.005$ s for the rows with harvest and $t=0.02$ s for the others. The last column is the squeaky wheel
-loop alone with a time limit equal to the mean time of the row. The first and third rows were repeated in November 2026; the other
-rows, including $^\dagger$, come from earlier campaigns with two to five runs in parallel (see Section~\ref{sec:e-setup}).}
+loop alone with a time limit equal to the mean time of the row. The first, third and seventh rows were repeated in November 2026; the other
+rows come from earlier campaigns with two to five runs in parallel (see Section~\ref{sec:e-setup}).}
 \label{tab:e-budget}
 \begin{tabular}{@{}lrrrrlrl@{}}
 \toprule
@@ -292,23 +293,24 @@ budget 10 & 10 & 20 & 0 & 7272 & 12.6 & 1 & 7271 (13 s)\\
 $T=33$ & 33 & 60 & 0 & 7255 & 41.9 & 1 & $7268.7\pm 2.5$ (34.8 s, 3 seeds)\\
 $T=50$ & 50 & 100 & 10 & 7255 & 60.2 & 1 & ---\\
 $T=100$, harvest & 100 & 100 & 10 & 7254 & 107.8 & 1 & ---\\
-\cfgqual{}$^\dagger$ & 100 & 100 & 0 & $7250.0\pm 1.0$ & 110.0 & 3 & 7267 (103.7 s, 1 seed)\\
+\cfgqual{} & 100 & 100 & 0 & $7249.3\pm 1.2$ & 100.3 & 3 & 7267 (103.7 s, 1 seed, earlier campaign)\\
 $T=200$ & 200 & 150 & 0 & 7247 & 211.3 & 1 & ---\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Two observations qualify the table. First, the harvest helps with small budgets and not with large ones: with
-$T=100$ and the harvest the result (7254, one seed) is above that of \cfgqual{} without it (7249 in that seed; worse in 7
+$T=100$ and the harvest the result (7254, one seed) is above that of \cfgqual{} without it (7249 in that seed of the earlier campaign; worse in 7
 instances and better in 2, $p=0.18$), which agrees with the explanation that a larger pool makes the MILP harder under a fixed time
 limit. Second, the runs with one seed are subject to the variation between seeds, whose standard
-deviation on the total is 0.6, 1.0 and 1.0 bins for \cfgfast{}, \cfgbal{} and \cfgqual{} (and 3.5 for \cfgfast{} without the harvest, in the repetition); as noted above, the variation
+deviation on the total is 0.6, 1.0 and 1.2 bins for \cfgfast{}, \cfgbal{} and \cfgqual{} (and 3.5 for \cfgfast{} without the harvest, in the repetition); as noted above, the variation
 between campaigns can be larger than that.
 
 Table~\ref{tab:e-within} isolates what the recombination adds inside the runs of the repetition. For each run, the solution
-that the squeaky wheel loop had found before the recombination is compared with the final one, so that the two have the same search and differ only in the time of the recombination (2 to 7 s on average, up to the limit in a few runs).
+that the squeaky wheel loop had found before the recombination is compared with the final one, so that the two have the same search and differ only in the time of the recombination (2 to 8 s on average, up to the limit in a few runs).
 The recombination never worsens a solution, which is guaranteed because it starts from the incumbent, and it removes between 8 and 22 bins per seed over the 240 instances, in every seed and configuration with $p<0.005$. With \cfgfast{}
-it improves 18 to 22 instances per seed and 30 in at least one of the three seeds; with \cfgbal{} 14 to 15 per seed and 20 in at least one. By class, with \cfgfast{} it saves on average 7.7 bins in class 1, 4.7 in class 5, 4.3 in class 8, 3.3 in class 6, 0.7 in
+it improves 18 to 22 instances per seed and 30 in at least one of the three seeds; with \cfgbal{} 14 to 15 per seed and 20 in at least one; with \cfgqual{} 16 or 17 per seed (49 runs of the 720 in total).
+The squeaky wheel loop of \cfgqual{} ends at 7265.7 on average, 11.6 bins below that of \cfgfast{} and 5 below that of \cfgbal{}, and the recombination widens the gap to 7.3 and 6.7 bins. By class, with \cfgfast{} it saves on average 7.7 bins in class 1, 4.7 in class 5, 4.3 in class 8, 3.3 in class 6, 0.7 in
 class 7 and none in class 4.
 
 \begin{table}[t]
@@ -331,6 +333,9 @@ Configuration & Seed & Before & After & Diff. & Better & $p$ & $t_{\mathrm{milp}
 \cfgbal{} & 1 & 7271 & 7256 & $-15$ & 15 & 0.0001 & 7.0\\
  & 2 & 7271 & 7257 & $-14$ & 14 & 0.0002 & 7.2\\
  & 3 & 7270 & 7255 & $-15$ & 15 & 0.0001 & 7.1\\
+\cfgqual{} & 1 & 7264 & 7248 & $-16$ & 16 & $6\cdot 10^{-5}$ & 6.6\\
+ & 2 & 7266 & 7250 & $-16$ & 16 & $6\cdot 10^{-5}$ & 6.7\\
+ & 3 & 7267 & 7250 & $-17$ & 17 & $4\cdot 10^{-5}$ & 7.6\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -343,13 +348,13 @@ The limits $T$ and $T_{\mathrm{milp}}$ bound the time of the two phases but the 
 The median time of \cfgfast{} is 4.2 s, which is the limit $T=4$ s plus the construction in progress when it expires. The mean (6.7 s) is higher because the recombination is not needed in most runs and uses time up to its limit in a few: 9.7\% of the runs last more than 14 s,
 and in 42 runs (5.8\%) the MILP reaches its limit of 30 s without a proof. The maximum is 34.2 s, which is $T+T_{\mathrm{milp}}$ plus a construction. \cfgbal{} has a median of 20.5 s, a mean of 25.9 s, a 90th percentile of 48.8 s and a maximum of 80.4 s;
 in 57 runs (7.9\%) the MILP reaches its limit of 60 s. Between 6.2\% and 6.7\% of the runs of each configuration end before $T$ because the squeaky wheel loop reaches the lower bound. The time grows with the number of boxes: the mean of \cfgfast{}
-is 3.4 s with 50 boxes and 10.5 s with 200, and that of \cfgbal{} is 16.8 and 34.2 s. Anyone who needs a bound on the running time should therefore read the maximum and not the mean
-(\todo{add the row of \cfgqual{} when its repetition ends}).
+is 3.4 s with 50 boxes and 10.5 s with 200, and that of \cfgbal{} is 16.8 and 34.2 s. \cfgqual{} has a mean and a median of 100.3 s, a 90th percentile of 112.9 s and a maximum of 200.6 s; in 33 runs (4.6\%) the MILP reaches its limit of 100 s, and 50 runs (6.9\%) end before $T$ at the lower bound. Its mean is 83.6 s with 50 boxes and 116.5 s with 200.
+Anyone who needs a bound on the running time should therefore read the maximum and not the mean.
 
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
-\caption{Time per instance in seconds (wall-clock, four processes in parallel) over the 720 runs of the repetition on the 240 original instances. Limit: runs in which the MILP reached its time limit without a proof, over 720.}
+\caption{Time per instance in seconds (wall-clock, four processes in parallel) over the 720 runs of each configuration in the repetition on the 240 original instances. Limit: runs in which the MILP reached its time limit without a proof, over 720.}
 \label{tab:e-time}
 \begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
@@ -358,6 +363,7 @@ Configuration & Mean & Median & 90th pct. & Maximum & Mean, $n=50$ & Mean, $n=20
 \cfgfast{} & 6.7 & 4.2 & 12.5 & 34.2 & 3.4 & 10.5 & 42\\
 \cfgfast{} without harvest & 5.8 & 4.1 & 7.3 & 34.3 & 3.4 & 8.8 & 27\\
 \cfgbal{} & 25.9 & 20.5 & 48.8 & 80.4 & 16.8 & 34.2 & 57\\
+\cfgqual{} & 100.3 & 100.3 & 112.9 & 200.6 & 83.6 & 116.5 & 33\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -838,16 +844,16 @@ increases the total by four bins in 5870 (0.07\%, $p=0.22$), so we do not includ
 \paragraph{What the results support.}
 The recombination of the bins produced by the search is the component that is best supported. In the seven comparisons of Table~\ref{tab:e-milp} the squeaky wheel loop alone has a total that is between 6 and 13 bins above that of the
 configuration with recombination, including the comparisons in which the control runs four to five times longer than \cfgfast{}, and inside the runs of the repetition the recombination saves bins in every seed and configuration without ever worsening a solution (Table~\ref{tab:e-within}).
-Classes 2 and 3 and the two blind sets were not used to take any decision. Without rotations the total is at the level of the best published ones, and with rotations the long configuration is below the total of \citet{Mahvash2018}.
+Classes 2 and 3 and the two blind sets were not used to take any decision. Without rotations the total of \cfgfast{} and \cfgbal{} is at the level of the best published ones and that of \cfgqual{} is 2.7 bins below the lowest (7249.3 against 7252), and with rotations the long configuration is below the total of \citet{Mahvash2018}.
 In the industrial instances the construction alone, with the 70\% support imposed on every box, uses fewer bins than the totals that \citet{Elhedhli2019} report.
 
 \paragraph{Comparison with the literature.}
 The totals of the other methods are taken from their articles. They come from other machines and from an unknown number of runs, and \citet{Mahvash2018} do not report times for the experiments without rotation. We normalised the times only
 in the industrial comparison, and with a processor rating that is approximate (Section~\ref{sec:e-ind}), so the statements about time with respect to other methods are indicative. We could not apply statistical tests against the literature because the results per instance
-are not published. The total of \citet{Mahvash2018} remains below the shorter configurations without rotation, and we do not claim that the method improves the state of the art in that setting.
+are not published. The total of \citet{Mahvash2018} remains below the shorter configurations without rotation. \cfgqual{} is 2.7 bins below it, with a standard deviation of 1.2 bins over seeds and a different machine, and for that reason we do not claim that the method improves the state of the art in that setting.
 
 \paragraph{Variation between campaigns.}
-Repeating \cfgfast{} and \cfgbal{} on the original instances with the same code and options gave totals that differ from those of the earlier campaign by 2.6 and 3.0 bins (Section~\ref{sec:e-mpv}), more than the standard deviation between seeds inside a campaign (0.6 to 2.1 bins).
+Repeating \cfgfast{} and \cfgbal{} on the original instances with the same code and options gave totals that differ from those of the earlier campaign by 2.6 and 3.0 bins (Section~\ref{sec:e-mpv}), more than the standard deviation between seeds inside a campaign (0.6 to 2.1 bins); \cfgqual{}, in contrast, moved by 0.7 bins (7250.0 against 7249.3).
 Because the time limits are wall-clock limits, the load of the machine changes the amount of search that a run receives, and we do not control it. For this reason, differences of a few bins between configurations measured in different campaigns should not be interpreted, and we
 mark the figures that come from campaigns whose raw files were lost.
 

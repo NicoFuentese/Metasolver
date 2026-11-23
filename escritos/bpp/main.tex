@@ -1,0 +1,43 @@
+﻿% Paper de bin packing 3D (BSG_BPP): borrador de las secciones Method y Experiments.
+% Compilar SIEMPRE desde una copia fuera del repo (ver AGENTS.md). Requiere pgfplots y MiKTeX.
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage[round]{natbib}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,fit,backgrounds}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.16}
+\usepackage[colorlinks=true,citecolor=blue,linkcolor=blue]{hyperref}
+\newtheorem{proposition}{Proposition}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+\title{Pattern generation and set covering recombination for the three-dimensional bin packing problem (working draft)}
+\author{Ignacio Araya\\[2pt]
+\small Escuela de Ingenier\'ia Inform\'atica, Pontificia Universidad Cat\'olica de Valpara\'iso,\\
+\small Avenida Brasil 2950, Valpara\'iso, Chile\\
+\small \texttt{ignacio.araya@pucv.cl}
+\and
+Nicol\'as Fuentes\\[2pt]
+\small Escuela de Ingenier\'ia Inform\'atica, Pontificia Universidad Cat\'olica de Valpara\'iso,\\
+\small Avenida Brasil 2950, Valpara\'iso, Chile\\
+\small \texttt{nicolas.fuentes@pucv.cl}}
+\date{\today}
+
+\begin{document}
+\maketitle
+\input{method}
+\input{experiments_bpp}
+\appendix
+\input{appendix_bpp}
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}
