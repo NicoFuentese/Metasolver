@@ -2,10 +2,10 @@
 \section{Related work}
 \label{sec:related}
 
-\pend{Every statement in this section must be checked against the PDF of the cited article
-(objective, constraints, time limits, machines); several descriptions below are taken from the titles
-and from our earlier notes, including the bibliographic data of \citet{Lodi2002}. Add the works published
-after 2019 on the 3D-BPP.}
+\pend{Statements still to be checked against the full text of the cited article: \citet{Martello2000},
+\citet{Paquay2016}, \citet{Lodi2002}, \citet{Faroe2003}, \citet{Crainic2008}, \citet{Crainic2009},
+\citet{Parreno2010}, \citet{Goncalves2013} (the placement procedure), \citet{Monaci2006}, the single container
+loading references, and the works of the last paragraph, which are described from their abstracts.}
 
 \paragraph{Exact methods and bounds.}
 \citet{Martello2000} introduced the 3D-BPP benchmark, the lower bounds $L_1$ and $L_2$ and a
@@ -20,7 +20,13 @@ constructive heuristics and \citet{Crainic2009} a two-level tabu search (TS2PACK
 \citet{Parreno2010} combined GRASP with variable neighbourhood descent (GVND), and
 \citet{Goncalves2013} a biased random key genetic algorithm (BRKGA) with a placement procedure based
 on maximal spaces; BRKGA is the reference most often used for the totals of the benchmark.
-\citet{Zhu2012SD} introduced space defragmentation for packing problems. These methods search over
+\citet{Zhu2012SD} introduced space defragmentation for packing problems, and \citet{Feng2015} two hybrid
+genetic algorithms, one for small and one for large problems, that assign the items to the containers
+with a largest-left-space-first strategy and pack each container with a deepest-bottom-left-with-fill
+strategy. Their totals for classes~1 and 4--8 (7246 bins without rotations and 7008 with six orientations)
+were obtained on ten instances per class and size that they generated with different random seeds,
+with ten runs per instance (Java, a Pentium~4 at 3.4~GHz, 200 generations, about 100~s), and cannot
+be compared directly with totals computed on the original instances. These methods search over
 complete solutions: they move boxes between bins or reorder the sequence in which boxes are placed.
 None of them recombines bins that were produced in different iterations.
 
@@ -46,7 +52,14 @@ vertical support.
 
 \paragraph{Squeaky wheel optimisation.}
 Squeaky wheel optimisation \citep{Joslin1999} repeats a greedy construction and raises the priority of
-the elements that the construction handled badly. It has not been applied, to our knowledge, to the
-priorities of box types in bin packing.
-\pend{Check whether squeaky wheel or similar priority-learning schemes have been used in packing
-problems.}
+the elements that the construction handled badly. \citet{Burke2011} applied it to two-dimensional strip
+packing, where a penalty moves the pieces that worsened a packing to an earlier position in the next one.
+We do not know of an application to the priorities of box types in three-dimensional bin packing.
+
+\paragraph{Recent work on practical instances.}
+\citet{Osaba2023} provide a benchmark dataset and an instance generator for real-world
+three-dimensional bin packing. \citet{Ananno2024} propose a multi-heuristic algorithm for the
+multi-container problem with real-world constraints, in which constructive heuristics build layers and
+blocks and a genetic algorithm packs the remaining items. \citet{Gzara2020} extend the layer-based
+column generation of \citet{Elhedhli2019} to vertical support, load bearing, planogram sequencing and weight
+limits.
