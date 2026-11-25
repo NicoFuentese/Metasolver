@@ -51,6 +51,7 @@ según la configuración); una fila con `valid=False` o `ERROR` nunca debe entra
 | `an_rot.py` | `rot_orig`, `rot_cls23` | rotación frente a Mahvash CG y BRKGA, por celda y por tamaño |
 | `an_blind.py` | `blind2rep` | segundo conjunto ciego: harvest, MILP con objetivo frente al simple, cota LP |
 | `an_ind.py` | `ind_large`, `ind_small` | industrial con apoyo ≥ 70 % frente a LCGA |
+| `an_extra.py` | `rotctl`, `rotctl23`, `qharv`, `large` | controles de squeaky wheel con rotación a igual tiempo y F4 con rotación, Quality con harvest, escala n=500/1000 (usa las semillas e instancias disponibles, sirve con campañas a medias) |
 | `an_cells.py` | `orig`, `quality`, `cls23_fixed` | celdas frente a BRKGA (comparación estricta con `TOL=0.0001`; el paper usa la estricta) |
 
 La ablación principal del paper es la de `results/bpp/ablation_2026-11/` (`problems/clp/experiments/run_ablation.sh` y `table_ablation.py`).
@@ -61,4 +62,3 @@ La ablación principal del paper es la de `results/bpp/ablation_2026-11/` (`prob
 - Los binarios anteriores al arreglo del greedy pueden terminar con `a box does not fit in the bin` con `-t 0.005`; `run_campaign.py` anota esas filas
   como `ERROR` y deja el mensaje en `<nombre>.errors.log`.
 - `paper_campaigns.ps1`: la campaña `sens` necesita un ejecutable con `--swo_sigma` y `--swo_bins`, que no están en el repo (`-SensExe`).
-- Pendiente: análisis de `rotctl`, `rotctl23`, `qharv` y `large` (los CSV se generan con la cadena; falta su script `an_*.py`).

@@ -26,21 +26,21 @@ Industrial, $n<500$ & \texttt{-T 30 --swo\_frac 0.3 --scratch --improve\_time 2 
 \centering
 \small\setlength{\tabcolsep}{3pt}
 \caption{Budgets on the 240 original instances (classes 1 and 4--8). $T$, $T_{\mathrm{milp}}$: time limits of the search and
-the recombination; $K$: harvest; $\tau=0.005$ s for the rows with harvest and $\tau=0.02$ s for the others. The last column is the squeaky wheel
-loop alone with a time limit equal to the mean time of the row. The first, third and seventh rows were repeated in November 2026; the other
+the recombination; $K$: harvest; $\tau=0.005$ s for the rows with harvest, except the sixth, and $\tau=0.02$ s for the others. The last column is the squeaky wheel
+loop alone with a time limit equal to the mean time of the row (mean and standard deviation over three seeds where two values are given). The first, third, sixth and seventh rows, and the controls of the first, third and seventh, come from the repetition campaigns (three seeds, four runs in parallel); the other
 rows come from earlier campaigns with two to five runs in parallel (see Section~\ref{sec:e-setup}).}
 \label{tab:e-budget}
 \begin{tabular}{@{}lrrrrlrl@{}}
 \toprule
  & $T$ & $T_{\mathrm{milp}}$ & $K$ & Bins & Time (s) & Seeds & Squeaky wheel alone\\
 \midrule
-\cfgfast{} & 4 & 30 & 10 & $7256.7\pm 0.6$ & 6.7 & 3 & ---\\
+\cfgfast{} & 4 & 30 & 10 & $7256.7\pm 0.6$ & 6.7 & 3 & $7273.3\pm 1.5$ (6.6 s)\\
 budget 10 & 10 & 20 & 0 & 7272 & 12.6 & 1 & 7271 (13 s)\\
-\cfgbal{} & 20 & 60 & 10 & $7256.0\pm 1.0$ & 25.9 & 3 & ---\\
-$T=33$ & 33 & 60 & 0 & 7255 & 41.9 & 1 & $7268.7\pm 2.5$ (34.8 s, 3 seeds)\\
+\cfgbal{} & 20 & 60 & 10 & $7256.0\pm 1.0$ & 25.9 & 3 & $7269.0\pm 1.0$ (24.3 s)\\
+$T=33$ & 33 & 60 & 0 & 7255 & 41.9 & 1 & $7268.7\pm 2.5$ (34.8 s, earlier campaign)\\
 $T=50$ & 50 & 100 & 10 & 7255 & 60.2 & 1 & ---\\
-$T=100$, harvest & 100 & 100 & 10 & 7254 & 107.8 & 1 & ---\\
-\cfgqual{} & 100 & 100 & 0 & $7249.3\pm 1.2$ & 100.3 & 3 & 7267 (103.7 s, 1 seed, earlier campaign)\\
+$T=100$, harvest & 100 & 100 & 10 & $7250.0\pm 1.0$ & 103.9 & 3 & $7266.3\pm 0.6$ (103.9 s)\\
+\cfgqual{} & 100 & 100 & 0 & $7249.3\pm 1.2$ & 100.3 & 3 & $7266.3\pm 0.6$ (103.9 s)\\
 $T=200$ & 200 & 150 & 0 & 7247 & 211.3 & 1 & ---\\
 \bottomrule
 \end{tabular}
