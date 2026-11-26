@@ -57,6 +57,7 @@ o `ERROR` nunca debe entrar en una tabla sin explicarlo. `--keep-sol` conserva l
 | `an_ind_extra.py` | `ind_kappa`, `ind_support` | tiempo por contenedor y κ al mismo tiempo; costo de los criterios de apoyo (con `support_stats.py`) |
 | `an_extra.py` | `rotctl`, `rotctl23`, `qharv`, `large` | controles de squeaky wheel con rotación a igual tiempo y configuración de 33 s con rotación, Quality con harvest, escala con 500 y 1000 cajas (usa las semillas e instancias disponibles, sirve con campañas a medias) |
 | `an_cells.py` | `orig`, `quality`, `cls23_fixed` | celdas frente a BRKGA (comparación estricta con `TOL=0.0001`; el paper usa la estricta) |
+| `table_cells.py` | `orig`, `quality`, `cls23_fixed` | tabla por clase y tamaño del apéndice (8 clases) con Mahvash, BRKGA, TS3, GVND, TS2P y GLS; los valores de Mahvash salen de `literature/mahvash_table2.csv` (`parse_mahvash_t2.py`) |
 | `check_instance_cg.py` | (instancias) | compara Instance_CG con lo que publican Elhedhli et al. (distribución, cotas por celda) |
 
 La ablación principal del paper es la de `results/bpp/ablation_2026-11/` (`problems/clp/experiments/run_ablation.sh` y `table_ablation.py`).
