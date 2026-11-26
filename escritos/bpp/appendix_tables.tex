@@ -201,3 +201,38 @@ LCGA & 115.0 & 20\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[t]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Effect of the harvest at the budget of \cfgfast{} ($T=4$ s, $\tau=0.005$ s, $T_{\mathrm{milp}}=30$ s; 240 original instances).}
+\label{tab:e-harvest}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+ & Seed 1 & Seed 2 & Seed 3 & Mean $\pm$ sd & Time (s)\\
+\midrule
+Without harvest & 7270 & 7264 & 7264 & $7266.0\pm 3.5$ & 5.8\\
+With harvest ($K=10$) & 7257 & 7256 & 7257 & $7256.7\pm 0.6$ & 6.7\\
+Difference & $-13$ & $-8$ & $-7$ & $-9.3$ & $+0.9$\\
+$p$ (Wilcoxon, per seed) & 0.0003 & 0.021 & 0.035 & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Criteria of support (industrial instances, $n\ge 500$, 80 instances, construction alone, $\kappa=1$, $\tau=2$ s, one run per instance). Support: percentage of the base area resting on boxes.}
+\label{tab:e-support}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Criterion & Bins & Time (s) & Mean support & Boxes with $\ge 70\%$ & Boxes fully supported\\
+\midrule
+None & 708 & 17.3 & 80.4\% & 77.3\% & 28.3\%\\
+50\% of the base & 720 & 17.9 & 88.7\% & 86.9\% & 32.6\%\\
+70\% of the base (used) & 723 & 18.3 & 91.4\% & 100\% & 33.0\%\\
+85\% of the base & 793 & 19.6 & 95.2\% & 100\% & 37.2\%\\
+Full support & 1303 & 32.1 & 100\% & 100\% & 100\%\\
+\bottomrule
+\end{tabular}
+\end{table}

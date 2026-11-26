@@ -1,0 +1,99 @@
+% VERSION KINDLE (generada desde main.tex; editar main.tex y regenerar). Paper de bin packing 3D (BSG_BPP): borrador completo. Los pendientes se marcan con \pend{} y se listan al inicio.
+% Compilar SIEMPRE desde una copia fuera del repo (ver AGENTS.md). Requiere pgfplots y MiKTeX.
+\documentclass[10pt]{article}
+\usepackage[paperwidth=11cm,paperheight=15cm,margin=4mm,includeheadfoot,headheight=0pt,footskip=4mm]{geometry}
+% version Kindle: tablas y figuras se reducen al ancho de la pagina
+\usepackage{etoolbox}
+\usepackage{adjustbox}
+\BeforeBeginEnvironment{tabular}{\begin{adjustbox}{max width=\linewidth}}
+\AfterEndEnvironment{tabular}{\end{adjustbox}}
+\BeforeBeginEnvironment{tikzpicture}{\begin{adjustbox}{max width=\linewidth}}
+\AfterEndEnvironment{tikzpicture}{\end{adjustbox}}
+\setlength{\parindent}{1em}\sloppy
+% flotantes donde se declaran (en paginas chicas se acumulan al final)
+\usepackage{float}
+\AtBeginDocument{%
+  \let\origtable\table\let\endorigtable\endtable
+  \renewenvironment{table}[1][]{\origtable[H]}{\endorigtable}%
+  \let\origfigure\figure\let\endorigfigure\endfigure
+  \renewenvironment{figure}[1][]{\origfigure[H]}{\endorigfigure}%
+  \let\origalgorithm\algorithm\let\endorigalgorithm\endalgorithm
+  \renewenvironment{algorithm}[1][]{\origalgorithm[H]}{\endorigalgorithm}}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage[round]{natbib}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,fit,backgrounds}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.16}
+\usepackage[colorlinks=true,citecolor=blue,linkcolor=blue]{hyperref}
+\newtheorem{proposition}{Proposition}
+\usepackage[colorinlistoftodos,textsize=footnotesize]{todonotes}
+% pendiente: nota en el texto y entrada en la lista de pendientes del inicio
+\newcommand{\pend}[1]{\todo[inline,color=orange!25]{#1}}
+\newcommand{\pendshort}[1]{\textcolor{red}{[#1]}\addcontentsline{tdo}{todo}{Table cell: #1}}
+\providecommand{\cfgfast}{\textsc{Fast}}
+\providecommand{\cfgbal}{\textsc{Balanced}}
+\providecommand{\cfgqual}{\textsc{Quality}}
+
+\title{Pattern generation and recombination for the three-dimensional bin packing problem}
+\author{Ignacio Araya\\[2pt]
+\small Escuela de Ingenier\'ia Inform\'atica, Pontificia Universidad Cat\'olica de Valpara\'iso,\\
+\small Avenida Brasil 2950, Valpara\'iso, Chile\\
+\small \texttt{ignacio.araya@pucv.cl}
+\and
+Nicol\'as Fuentes\\[2pt]
+\small Escuela de Ingenier\'ia Inform\'atica, Pontificia Universidad Cat\'olica de Valpara\'iso,\\
+\small Avenida Brasil 2950, Valpara\'iso, Chile\\
+\small \texttt{nicolas.fuentes@pucv.cl}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We show that a beam search for the single container loading problem is a strong basis for the
+three-dimensional bin packing problem when its objective is changed from the loaded volume to a profit per
+box type that favours large boxes. The bins are loaded one at a time, a squeaky wheel loop learns the profits,
+and the loading constraints, such as vertical support, are enforced inside the beam search. On top of this
+generator, the bins built during the search, together with complete loads that the beam search explores and
+discards, are recombined with a set covering model, or with a set partitioning model when the boxes must have
+vertical support. The LP relaxation of the pool proves in most runs that the incumbent is the best
+combination of the pool, so that the integer program is rarely needed. On the benchmark of Martello,
+Pisinger and Vigo the method obtains totals at the level of the best published ones with fixed
+orientation, and below the best published column generation with rotations (8982.3 bins against 9013
+on the eight classes). On industrial instances with 70\% support on every box, the sequential construction alone uses 6.0\%
+fewer bins than a column generation over layers when the instances have 500 boxes or more; there the
+recombination is applicable but does not improve any solution.
+\end{abstract}
+
+\noindent\textbf{Keywords:} three-dimensional bin packing; set covering; squeaky wheel optimisation;
+beam search; vertical support.
+
+\begingroup
+\renewcommand{\contentsname}{Pending items (remove before submission)}
+\listoftodos[Pending items (remove before submission)]
+\endgroup
+\clearpage
+
+\input{introduction}
+\input{related}
+\input{problem}
+\input{method}
+\input{experiments_bpp}
+\input{conclusions}
+\appendix
+\input{appendix_bpp}
+\input{appendix_tables}
+\input{appendix_extra}
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}
