@@ -49,12 +49,28 @@ the state of the art \citep{Fanslau2010,Zhu2012,Araya2014,Araya2017,Guesser2026}
 function; it has been extended to biobjective loading \citep{Araya2020} and to the palletization of air cargo
 into several unit load devices with weight distribution constraints \citep{ArayaULD}, where the devices are
 also loaded one at a time with BSG; there the objective is the volume, the devices are heterogeneous and the
-total volume of the devices is minimised. Loading the bins one at a time with an algorithm for one container
-is a natural scheme for multiple container problems; what we add is the change of objective that makes it
-competitive for bin packing and the recombination of the bins.
-\pend{Review the literature on sequential approaches that load one container at a time with a single
-container algorithm (multiple container loading and 3D-BPP) and cite the closest ones here; state the status
-of \citet{ArayaULD} (submitted, under review or published).} \citet{Zhao2016} compare
+total volume of the devices is minimised.
+
+\paragraph{Sequential and pattern-based methods for multiple containers.}
+Loading the containers one at a time with an algorithm for one container is the usual approach to the multiple
+container loading problem; \citet{Eley2003} notes that it is the one most often suggested in the literature, and
+\citet{Martello2000} already propose a heuristic that closes one bin before opening the next. Two lines of work are
+close to ours. First, \citet{LimZhang2005} and \citet{Lim2012} assign a priority to each box type, fill the containers
+sequentially, analyse the solution after each iteration and update the priorities of the awkward box types for the
+next one, an idea close to our squeaky wheel loop over the profits of the box types. Second, \citet{Eley2003} uses a
+single container algorithm to produce alternative loading patterns and selects them with a set partitioning model,
+and \citet{Che2011} formulate the multiple container loading cost minimisation problem as a set cover problem whose
+columns are produced by single container heuristics; \citet{Zhu2012CG} and \citet{Wei2015} generate the columns by
+column generation with prototypes that approximate the pricing solutions. Our method differs from these in three
+points: the profits $v^\kappa$ change the objective of the single container algorithm instead of only the order of
+the boxes, the patterns are those that the search builds or explores (the harvest) and no pricing problem is solved,
+and the LP of the pool is used to stop the recombination and to fix columns. We evaluate on the
+three-dimensional bin packing benchmark of \citet{Martello2000} and against the methods designed for it.
+\pend{The descriptions of \citet{Eley2003}, \citet{Che2011}, \citet{Zhu2012CG}, \citet{Wei2015}, \citet{LimZhang2005}
+and \citet{Lim2012} come from their abstracts: check them in the full text, in particular how the priorities of
+\citet{Lim2012} are defined and updated, which instances \citet{Che2011} and \citet{Wei2015} use (whether they report
+results on the benchmark of \citet{Martello2000}), and which heuristic of \citet{Martello2000} fills one bin at a time.
+State the status of \citet{ArayaULD}.} \citet{Zhao2016} compare
 container loading algorithms, and \citet{Bortfeldt2013} review the practical constraints, among them
 vertical support.
 
