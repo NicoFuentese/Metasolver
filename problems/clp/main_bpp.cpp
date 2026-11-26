@@ -700,6 +700,7 @@ int main(int argc, char** argv){
 	args::Flag _no_swo(parser, "no_swo", "Ablation: without the squeaky wheel optimization (repetition of the construction increasing the profit of the boxes of the least loaded bins)", {"no_swo"});
 	args::ValueFlag<double> _swo_frac(parser, "double", "Proportion of the total time for the squeaky wheel optimization (the rest: emptying of bins with ruin and recreate). Default: 1", {"swo_frac"});
 	args::ValueFlag<double> _swo_rate(parser, "double", "Increase of the profit of the boxes of the least loaded bins. Default: 0.3", {"swo_rate"});
+	args::Flag _swo_lim(parser, "swo_lim", "Update the profits with the rule of Lim et al. (2012): every type adds 1 minus the average volume utilization of its bins (instead of the multiplicative rule with noise)", {"swo_lim"});
 	args::ValueFlag<double> _swo_sigma(parser, "double", "Standard deviation of the log-normal noise applied to the profits in each repetition. Default: 0.05", {"swo_sigma"});
 	args::ValueFlag<double> _swo_bins(parser, "double", "Fraction of the least loaded bins whose box types increase their profit in each repetition (at least one bin). Default: 0.1", {"swo_bins"});
 	args::ValueFlag<int> _inst(parser, "int", "Instance in files with several instances (from 1). Default: 1", {'i'});
@@ -838,6 +839,24 @@ int main(int argc, char** argv){
 		bool stopped=false;
 		double last_try_cols=0, last_try_t=-1e9;
 		while((int)loads.size()>lb && elapsed()<swo_time){
+			if(_swo_lim){
+				//Regla de Lim, Ma, Xu y Zhang (2012): el factor de cada tipo aumenta en 1 menos la utilizacion
+				//media de los contenedores donde se cargaron sus cajas (aditivo, todos los tipos)
+				vector<double> util(total.size(), 0.0);
+				for(const Load& l : cur){
+					double u=l.volume/bin.volume;
+					for(size_t t=0; t<total.size(); t++) util[t]+=u*l.boxes[t];
+				}
+				for(size_t t=0; t<total.size(); t++){
+					if(total[t]>0) w[t]+=1.0-util[t]/total[t];
+					clpState::box_profit[t]=base_profit[t]*w[t];
+				}
+				cur=construct();
+				st_swo++;
+				for(const Load& l : cur) columns.push_back(l.boxes);
+				if(better_sol(cur, loads)) loads=cur;
+				continue;
+			}
 			vector<int> order=by_free_volume(cur);
 			int m=max(1, (int) round(bins_frac*cur.size()));
 			vector<bool> hit(total.size(), false);
