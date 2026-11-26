@@ -76,7 +76,9 @@ of boxes and the dimensions of the pallet (1200, 800 and 2055).
 The program is compiled with g++ 16.2 at \texttt{-O3} and linked with HiGHS 1.15.1. Every solution is checked by an independent program that shares no code with the solver:
 it verifies that the boxes lie inside the bin, do not intersect and that every box appears exactly once, with rotations when applicable, and, for the industrial instances, that every box above the floor has at least 70\% of its base supported.
 The implementation, the generators of the instances that we built, the conversion of the industrial collection to the input format, and the programs that run the experiments and compute their statistics are available in the repository of the project (Section~\ref{sec:m-params}).
-\pend{Add the result files of the experiments to the repository or to a supplementary file (today they are outside the repository).}
+\pend{Add the result files of the experiments to the repository or to a supplementary file (today they are outside the
+repository), with the commit and the checksum of the executable of each campaign (\texttt{run\_campaign.py} does not
+record them, and deletes the solutions unless \texttt{--keep-sol} is given).}
 
 \paragraph{Results from the literature.}
 We compare with the totals published for classes 1 and 4--8 without rotation: the column generation
@@ -255,6 +257,9 @@ where the loop only adds noise, the total is 34.0 bins higher. Giving the loop t
 with respect to that control (better in 20 instances, worse in 1, $p=7\cdot 10^{-5}$). With this budget the harvest adds
 2.3 bins, which is not significant ($p=0.40$); its effect appears with the shorter budget of \cfgfast{} (below). The total
 reduction from the plain construction to \cfgbal{} is 129.3 bins (1.75\%).
+\pend{Compare with the update rule of \citet{Lim2012} (all the types, additive, by one minus the average volume
+utilisation of their containers; unloaded boxes in an assumed extra container) with $\kappa=1$ and $\kappa=2$, under the
+budget of \cfgbal{} on the 240 original instances, to separate the effect of $\kappa$ from that of our update rule.}
 
 The ablation was run on another machine (a Linux
 container with four cores, four runs in parallel, and limits measured as CPU time), so its absolute totals are not
