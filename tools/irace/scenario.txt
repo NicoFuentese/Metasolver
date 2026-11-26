@@ -1,0 +1,18 @@
+## Escenario de irace para BSG_BPP (ver README.md). Ejecutar desde la raiz del repositorio:
+##   irace --scenario tools/irace/scenario.txt --parallel 4
+parameterFile      = "tools/irace/parameters.txt"
+configurationsFile = "tools/irace/configurations.txt"
+trainInstancesDir  = ""
+trainInstancesFile = "tools/irace/instances-train.txt"
+targetRunner       = "tools/irace/target-runner.py"
+execDir            = "."
+## presupuesto: ~3000 corridas de ~7 s (presupuesto de Fast) = ~1.5 h con 4 procesos
+maxExperiments     = 3000
+## orden fijo: bloques de 24 instancias que cubren las 24 celdas (clase x tamano)
+sampleInstances    = 0
+blockSize          = 24
+firstTest          = 24
+eachTest           = 24
+digits             = 3
+deterministic      = 0
+logFile            = "results/bpp/irace/irace.Rdata"

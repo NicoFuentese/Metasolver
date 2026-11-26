@@ -480,10 +480,13 @@ harvest compensates for the small number of squeaky wheel iterations; for a long
 pool already holds many patterns without it.
 With three seeds, \cfgqual{} with the harvest gives $7250.0\pm 1.0$ against $7249.3\pm 1.2$ without it ($p=0.72$), which supports leaving it out (Section~\ref{sec:e-mpv}).
 The values of $\kappa$, $\rho$, $\sigma$, $\theta$ and $K$ were chosen on the original instances, and the sensitivity to $\rho$, $\sigma$, the fraction of least loaded bins, $K$, $\theta$ and $\tau$ is reported in Section~\ref{sec:e-ablation}.
-\pend{Decide whether the noise $\sigma$ and the harvest threshold $\theta$ stay in the method. In the sensitivity analysis
-(72 original instances, \cfgfast{}) $\sigma=0$ and $\theta=0.8$ were not worse than the defaults ($-2.0$ bins each, not
-significant), so both could be removed (no noise; harvest the $K$ most loaded distinct loads without threshold). Confirm
-with $\sigma=0$ and with $\theta=0$ on the 240 original instances and on the blind set before removing them.}
+\pend{Tune the parameters of Table~\ref{tab:params} and $K$ once with irace \citep{LopezIbanez2016} on the development
+set (240 generated instances, never the original instances or the blind set), with the budget of \cfgfast{}, the number
+of bins as cost and blocks of 24 instances that cover all the cells; the scenario is in \texttt{tools/irace}. The ranges
+include $\sigma=0$ and $K=0$, so that the tuning decides whether the noise and the harvest stay; the parameters that turn
+out insensitive are then fixed and not presented as tunable. Then evaluate the tuned configuration against the current one
+on the original instances and the blind set, and rewrite this paragraph (today the values were chosen by hand on the
+original instances).}
 The method is implemented in C++ on top of the
 Metasolver framework, with HiGHS 1.15.1 as the LP and MILP solver; the recombination is
 compiled only when HiGHS is available. The implementation is available at \url{https://github.com/NicoFuentese/Metasolver} (branch \texttt{nico/bpp-mejoras}).

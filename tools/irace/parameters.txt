@@ -1,0 +1,10 @@
+# Parametros de BSG_BPP que introduce el metodo (los de BSG quedan fijos en sus valores de Araya et al. 2017).
+# Los rangos incluyen los valores que apagan un componente: swo_sigma=0 (sin ruido) y harvest=0 (sin harvest),
+# para que el ajuste decida si el componente se queda.
+# name        switch            type  range
+kappa         "--kappa "        r     (1.0, 3.0)
+swo_rate      "--swo_rate "     r     (0.05, 1.0)
+swo_sigma     "--swo_sigma "    r     (0.0, 0.2)
+swo_bins      "--swo_bins "     r     (0.05, 0.3)
+harvest       "--harvest "      i     (0, 30)
+harvest_thr   "--harvest_thr "  r     (0.8, 1.0)   | harvest > 0

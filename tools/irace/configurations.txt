@@ -1,0 +1,2 @@
+kappa swo_rate swo_sigma swo_bins harvest harvest_thr
+2.0   0.3      0.05      0.1      10      0.95
