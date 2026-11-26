@@ -700,6 +700,8 @@ int main(int argc, char** argv){
 	args::Flag _no_swo(parser, "no_swo", "Ablation: without the squeaky wheel optimization (repetition of the construction increasing the profit of the boxes of the least loaded bins)", {"no_swo"});
 	args::ValueFlag<double> _swo_frac(parser, "double", "Proportion of the total time for the squeaky wheel optimization (the rest: emptying of bins with ruin and recreate). Default: 1", {"swo_frac"});
 	args::ValueFlag<double> _swo_rate(parser, "double", "Increase of the profit of the boxes of the least loaded bins. Default: 0.3", {"swo_rate"});
+	args::ValueFlag<double> _swo_sigma(parser, "double", "Standard deviation of the log-normal noise applied to the profits in each repetition. Default: 0.05", {"swo_sigma"});
+	args::ValueFlag<double> _swo_bins(parser, "double", "Fraction of the least loaded bins whose box types increase their profit in each repetition (at least one bin). Default: 0.1", {"swo_bins"});
 	args::ValueFlag<int> _inst(parser, "int", "Instance in files with several instances (from 1). Default: 1", {'i'});
 	args::ValueFlag<string> _columns(parser, "string", "Write the bins generated in the construction and the squeaky wheel optimization (boxes of each type) to this file", {"columns"});
 	args::ValueFlag<int> _seed(parser, "int", "Seed of the random numbers (noise of the squeaky wheel optimization, random ruin). Default: 1", {"seed"});
@@ -827,7 +829,8 @@ int main(int argc, char** argv){
 		double rate=(_swo_rate)? _swo_rate.Get() : 0.3;
 		vector<double> w(total.size(), 1.0);
 		vector<Load> cur=loads;
-		normal_distribution<double> noise(0.0, 0.05);
+		normal_distribution<double> noise(0.0, (_swo_sigma)? _swo_sigma.Get() : 0.05);
+		const double bins_frac=(_swo_bins)? _swo_bins.Get() : 0.1;
 		//--adapt: parada y reparto del esfuerzo por el LP del pool (ver mas abajo)
 		double next_check=(_adapt_min)? _adapt_min.Get() : 6.0, z_best=1e18, t_z=0;
 		const double check_every=(_adapt_every)? _adapt_every.Get() : 2.0, stall=(_adapt_stall)? _adapt_stall.Get() : 6.0;
@@ -836,7 +839,7 @@ int main(int argc, char** argv){
 		double last_try_cols=0, last_try_t=-1e9;
 		while((int)loads.size()>lb && elapsed()<swo_time){
 			vector<int> order=by_free_volume(cur);
-			int m=max(1, (int) round(0.1*cur.size()));
+			int m=max(1, (int) round(bins_frac*cur.size()));
 			vector<bool> hit(total.size(), false);
 			for(int k=0; k<m; k++)
 				for(size_t t=0; t<total.size(); t++) if(cur[order[k]].boxes[t]>0) hit[t]=true;

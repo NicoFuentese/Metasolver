@@ -12,7 +12,7 @@ Configuraciones del paper: Fast  = -T 4 -t 0.005 --harvest 10 --milp 30
                            Balanced = -T 20 -t 0.005 --harvest 10 --milp 60
                            Quality  = -T 100 --milp 100
 Notas: * Las campanas con -t 0.005 pueden fallar con el binario ANTERIOR al arreglo del greedy ("a box does not fit in the bin"); usar un binario con el arreglo.
-       * 'sens' necesita un ejecutable con --swo_sigma y --swo_bins (no estan en el repo): pasarlo con -SensExe.
+       * 'sens' usa --swo_sigma y --swo_bins (incluidos en BSG_BPP): si -SensExe esta vacio se usa -Exe.
        * Las tablas se regeneran despues con tools/analysis (variable BPP_RESULTS).
 #>
 param(
@@ -24,6 +24,9 @@ param(
     [int]$Procs = 4,
     [switch]$List
 )
+# con -File, "a,b" llega como una sola cadena: separarla
+$Only = @($Only | ForEach-Object { $_ -split "," } | Where-Object { $_ })
+$Seeds = @($Seeds | ForEach-Object { [int]"$_" })
 $tools = Split-Path -Parent $PSScriptRoot
 $runner = Join-Path $tools "runners\run_campaign.py"
 $py = if ($env:BPP_PYTHON) { $env:BPP_PYTHON } else { "python" }
@@ -83,7 +86,7 @@ foreach ($name in $todo) {
         if ($c.dir)     { $a += @("--dir", (Join-Path $Instances $c.dir)) }
         if ($c.vsupport) { $a += @("--vsupport", $c.vsupport) }
         if ($c.keep)    { $a += "--keep-sol" }
-        $exe = if ($c.exe -eq "sens") { $SensExe } else { $Exe }
+        $exe = if ($c.exe -eq "sens" -and $SensExe) { $SensExe } else { $Exe }
         if ($exe) { $a += @("--exe", $exe) }
         $a += $c.cfgs
         Write-Host ("{0}  start {1}_s{2}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $name, $s)

@@ -1,4 +1,4 @@
-# BSG for the 3D bin packing problem (branch `bsg-bpp`)
+# BSG for the 3D bin packing problem
 
 Description
 ------
@@ -6,7 +6,7 @@ BSG is a beam search guided by a greedy algorithm (Araya and Riff 2014; Araya et
 the loading of a container with blocks of boxes placed in maximal free spaces, and evaluates each node
 of the beam by completing its partial solution with a greedy algorithm that uses the VCS function.
 
-This branch adapts BSG to the **three-dimensional bin packing problem** (3D-BPP, multiple container
+This version adapts BSG to the **three-dimensional bin packing problem** (3D-BPP, multiple container
 loading with identical containers): all the boxes must be loaded into the minimum number of identical
 bins (`BSG_BPP`). It derives from `bsg-uld` (air cargo palletization, which derives from the optimized
 single-container version of `bsg-clp`) and also contains its two programs:
@@ -22,18 +22,26 @@ The multi-objective variants (BSG-B, NSGA-II), other problems and plugins are av
 Installation
 -------
 
-     git clone -b bsg-bpp https://github.com/rilianx/Metasolver.git
+     git clone -b nico/bpp-mejoras https://github.com/NicoFuentese/Metasolver.git
      cd Metasolver
      mkdir build && cd build
      cmake ..
      make
 
-This builds `BSG_BPP`, `BSG_ULD` and `BSG_CLP`. `BSG_BPP` uses [HiGHS](https://highs.dev) (optional, MIT license)
-for the set covering recombination (`--milp`); if CMake does not find it, the program is built without that option.
-The scripts of the experiments use Python 3.
+The branch `nico/bpp-mejoras` is the current version of `BSG_BPP`, derived from `bsg-bpp` of
+https://github.com/rilianx/Metasolver. This builds `BSG_BPP`, `BSG_ULD` and `BSG_CLP`. `BSG_BPP` uses
+[HiGHS](https://highs.dev) (optional, MIT license) for the recombination of bins (`--milp`); if CMake does not find
+it, the program is built without that option. The scripts of the experiments use Python 3 (the analysis programs in
+`tools/analysis` also need `numpy` and `scipy`).
+
+On Windows the programs are built with MSYS2 (UCRT64: g++, CMake and HiGHS, `cmake -G "MinGW Makefiles"`), and the
+folder with its DLLs (`C:\msys64\ucrt64\bin`) must be in the `PATH` to run them; without it the program ends silently.
 
 3D bin packing (BSG_BPP)
 -------
+
+The version of `BSG_BPP` described here is the one used in the paper in `escritos/bpp`; it is in the branch
+`nico/bpp-mejoras` of https://github.com/NicoFuentese/Metasolver.
 
 ### Algorithm
 
@@ -53,23 +61,24 @@ The scripts of the experiments use Python 3.
   best bin. With `--harvest K`, the `K` most loaded complete bins found by those greedy runs (distinct, at
   least `--harvest_thr` = 0.95 of the best bin of the call) are also added to the pool of bins. It costs
   about 1 s per instance and fills the pool much faster than the squeaky wheel optimization alone.
-* **Recombination by set covering** (`--milp <s>`, needs HiGHS). After the search, all the distinct bins
-  generated (the pool) are recombined: the MILP chooses the fewest bins that cover the boxes of every
+* **Recombination of the pool** (`--milp <s>`, needs HiGHS). After the search, all the distinct bins
+  generated (the pool) are recombined: a MILP chooses the fewest bins that cover the boxes of every
   type (warm start with the best solution found, 1 thread, `s` seconds). Before the MILP, the LP relaxation
   of the pool is solved: if its ceiling is not smaller than the current number of bins, the solution is
-  optimal for the pool and the MILP is skipped (about 85% of the instances); otherwise the columns that cannot improve
-  the solution are removed by reduced cost fixing. The boxes covered more than once are removed from the
-  last bins chosen. This step does not exist in the original BSG and it is where most of the gain over the
-  squeaky wheel optimization comes from (see the ablation below). It is only valid without vertical
-  support (`--support none`).
+  optimal for the pool and the MILP is skipped (in about 80% of the runs); otherwise the columns that cannot improve
+  the solution are removed by reduced cost fixing. With the covering model (default), the boxes covered more than once
+  are removed from the last bins chosen, which is only valid without vertical support. With `--partition` every box
+  is covered exactly once, so no box is removed and the model can be used with `--support`.
+  This step does not exist in the original BSG and it is where the gain over the squeaky wheel
+  optimization with the same time comes from (see the ablation below).
 * **Vertical support** (`--support none|full|corners|area`, default `none`). With `area` (default
   `--min_overlap 0.7`) at least 70% of the base of every box must rest on other boxes or on the floor.
 * **Lower bound.** Maximum of the continuous bound and the bounds L1 and L2 of Martello, Pisinger and
-  Vigo (2000) (fixed orientation).
+  Vigo (2000) (fixed orientation); with `--rot`, the continuous bound.
 * Optional: `--adapt` (with `--milp`) stops the squeaky wheel optimization when the LP of the pool proves that
-  the current solution is optimal for it (`-T` becomes a maximum): 14% less time for 0.07% more bins in
-  our tests. `--swo_frac` < 1 gives part of the time to the emptying of bins with ruin and recreate
-  (`Insert` of `BSG_ULD`), which did not improve the results.
+  the current solution is optimal for it (`-T` becomes a maximum): about 14% less time for 0.07% more bins in
+  our tests. `--swo_frac` < 1 gives part of the time to an improvement phase that tries to remove bins with ruin and
+  recreate (`Insert` of `BSG_ULD`); it did not improve the results.
 
 ### Usage
 
@@ -79,21 +88,27 @@ The scripts of the experiments use Python 3.
 Output: `n_bins <bins> lb <lower bound> construction <bins of the first construction> swo <bins after
 the squeaky wheel optimization> t_construction <s> time <s>`, a line `milp cols <columns> bins <bins> improved
 <0|1> t_milp <s> ...` with `--milp`, and a line `stats` with counters. `-T` is the time of the search and
-`--milp` adds its own time limit.
+`--milp` adds its own time limit. Both are wall-clock limits.
 
 Main options (`./build/BSG_BPP -h` for all of them):
 
 ```
-  -T[double]          Time limit of the search (seconds, CPU time). Default: 60
+  -T[double]          Time limit of the search (seconds, wall-clock). Default: 60
   -t[double]          Time limit of BSG in each bin (seconds, without the block generation). Default: 0.02
   -i[int]             Instance in files with several instances (from 1). Default: 1
   --seed=[int]        Seed of the random numbers. Default: 1
   --kappa=[double]    Profit of each box: volume^kappa. Default: 2
   --swo_rate=[double] Increase of the profit of the boxes of the least loaded bins. Default: 0.3
+  --swo_sigma=[double] Standard deviation of the log-normal noise of the profits. Default: 0.05
+  --swo_bins=[double] Fraction of the least loaded bins whose box types are penalised. Default: 0.1
   --harvest=[int]     Bins added to the pool from each BSG call (with --milp or --pool). Default: 0
-  --milp=[double]     Time limit of the set covering MILP (seconds, in addition to -T). Default: 0 (off)
+  --harvest_thr=[double]  Minimum volume of a harvested bin relative to the best of the call. Default: 0.95
+  --milp=[double]     Time limit of the recombination MILP (seconds, in addition to -T). Default: 0 (off)
+  --partition         Recombination with the set partitioning model (compatible with --support)
+  --milp_plain        Recombination with a plain MILP (without the LP proof and the fixing)
   --adapt             Stop the search when the LP of the pool certifies the solution (needs --milp)
   --support=[string]  none, full, corners or area. Default: none
+  --min_overlap=[double]  With --support area: minimum fraction of the base that rests on boxes. Default: 0.7
   --rot               The boxes can be rotated (6 orientations). Default: fixed orientation
   --no_swo, --no_improve, --no_ruin, --no_partial   Ablation of the components
   --pool=[string]     Write the distinct bins generated to a file
@@ -104,118 +119,147 @@ Main options (`./build/BSG_BPP -h` for all of them):
 The MILP needs [HiGHS](https://highs.dev) (MIT license): if CMake finds it, `BSG_BPP` is built with `--milp`;
 without it the program compiles and works as before but `--milp` gives an error.
 
-### Instances
+### Instances and data
 
 * `problems/clp/benchs/MPV/original/class{1..8}/{50,100,150,200}.txt`: the instances of Martello,
   Pisinger and Vigo (2000), 10 instances per file. Each instance starts with a line with its number, a
   lower bound and an upper bound, followed by `n W H D` and one line per box. Bins of 100x100x100
-  (classes 1-5 and 8), 10x10x10 (class 6) and 40x40x40 (class 7).
+  (classes 1-5 and 8), 10x10x10 (class 6) and 40x40x40 (class 7). They are in the repository.
 * `problems/clp/benchs/MPV/gen_mpv.py`: generator of instances with the same distribution (written from
   the description of the paper, not the original generator; `benchs/MPV/instances`). They were used to
   explore the components. The configurations were chosen with them and with classes 1 and 4-8 of the original
-  instances; classes 2 and 3 were never used to choose anything and are the held-out set.
+  instances; classes 2 and 3 were not used to choose anything and are a held-out set.
 * A single instance can also be given as `n L W H` followed by one line `l w h` per box.
+* **Data that is not in the repository.** The industrial instances (`Instance_CG`, the collection that accompanies
+  Elhedhli, Gzara and Yildiz 2019), the product catalogue (`products.csv`) and the other collections that the
+  team uses are in the shared Google Drive of the team; ask the authors for access. Place
+  them outside the repository (for example in a `Datasets` directory next to it) and point the tools to them
+  with `BPP_DATA` (see `tools/README.md`). `tools/instances/convert_instance_cg.py` converts `Instance_CG`
+  to the input format of `BSG_BPP` (pallet 1200x800x2055 mm), and `tools/instances/gen_mpv_sets.py`
+  regenerates the blind set and the large instances of the paper from their registered seeds.
+* The result files of the experiments of the paper are not in the repository either; ask the authors.
 
 `problems/clp/validate_bpp.py` is an independent validator (it does not share code with the solver): every
 box loaded exactly once, in an allowed orientation (`--rot`: any of the 6), inside its bin and without
-overlapping other boxes. All the solutions reported below were validated with it.
+overlapping other boxes; with `--support f`, every box above the floor has at least a fraction `f` of its base
+supported. All the solutions reported below were validated with it.
 
 ### Results
 
-**Configurations** (240 original instances, classes 1 and 4-8, fixed orientation, mean and standard deviation of
-the total number of bins over 3 seeds, CPU time per instance on an Intel i5-14400, several runs in parallel):
+The experiments, with their protocol, are described in `escritos/bpp` (paper). All the numbers below are the mean
+and the sample standard deviation over 3 seeds, with times in wall-clock seconds on an Intel i5-14400 with four
+runs in parallel, unless stated otherwise.
+
+**Configurations** (240 original instances, classes 1 and 4-8, fixed orientation; total number of bins):
 
 | configuration | options | bins | time per instance (mean, max) |
 |---|---|---|---|
-| F5 (fast) | `-T 4 -t 0.005 --harvest 10 --milp 30` | 7259.3 ± 2.1 | 6.8 s (34 s) |
-| H20 (balanced) | `-T 20 -t 0.005 --harvest 10 --milp 60` | 7253.0 ± 1.0 | 25.6 s (81 s) |
-| B100 (quality) | `-T 100 --milp 100` | 7250.0 ± 1.0 | 110 s (about 200 s) |
+| Fast | `-T 4 -t 0.005 --harvest 10 --milp 30` | 7256.7 ± 0.6 | 6.7 s (34 s) |
+| Balanced | `-T 20 -t 0.005 --harvest 10 --milp 60` | 7256.0 ± 1.0 | 25.9 s (80 s) |
+| Quality | `-T 100 --milp 100` | 7249.3 ± 1.2 | 100.3 s (201 s) |
 
 Literature (classes 1 and 4-8, fixed orientation; other machines, the times are not comparable): Mahvash et al.
 (2018, column generation and branching with CPLEX) 7252, BRKGA (Goncalves and Resende 2013) 7258, space
 defragmentation (Zhu et al. 2012) 7269, LCGA (Elhedhli et al. 2019) 7284, GVND (Parreño et al. 2010) 7286,
-TS2P (Crainic et al. 2009) 7298, GLS (Faroe et al. 2003) 7302. F5 is on par with BRKGA with a fraction of the
-time; H20 and B100 are below BRKGA, and only B100 is below Mahvash et al. (by 2 bins, with a different machine
+TS2P (Crainic et al. 2009) 7298, GLS (Faroe et al. 2003) 7302. Fast is at the level of BRKGA, and Balanced is not
+distinguishable from Fast; Quality is below BRKGA and below Mahvash et al. (by 2.7 bins, with a different machine
 and number of runs). We do not claim to be the best method without rotation.
 
-Held-out classes 2 and 3 (80 instances, never used to choose anything; BRKGA 2519, GVND 2527, Mahvash et al. 2514):
-F5 2521.0 ± 2.6 (3 seeds), and with the earlier configuration SWO 33 s + MILP 60 s 2517.0 ± 1.3 (5 seeds)
-against 2527.8 for the squeaky wheel optimization alone with the same time.
+Classes 2 and 3 (80 instances, not used to choose anything; BRKGA 2519, GVND 2527, Mahvash et al. 2514): Fast 2519.7 ± 0.6,
+Balanced 2514.3 ± 0.6, Quality 2514.0 ± 0.0. On the eight classes: 9776.3, 9770.3 and 9763.3 against 9766 of
+Mahvash et al. and 9777 of BRKGA.
 
 Bins per class and size (sum of the 10 instances; mean of 3 seeds; LB: lower bound of the instance files;
 the other methods are from Table 8 of Goncalves and Resende (2013), `benchs/MPV/literature_goncalves2013.csv`,
 averages x 10):
 
-| class | n | LB | BRKGA | GVND | TS2P | GLS | F5 | H20 | B100 |
+| class | n | LB | BRKGA | GVND | TS2P | GLS | Fast | Balanced | Quality |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | 50 | 125 | 134 | 134 | 134 | 134 | 134 | 134 | 134 |
-| 1 | 100 | 251 | 266 | 266 | 267 | 267 | 265.7 | 265 | 265.7 |
-| 1 | 150 | 347 | 364 | 364 | 370 | 370 | 363 | 363 | 363 |
-| 1 | 200 | 484 | 508 | 509 | 511 | 512 | 507.7 | 507 | 507 |
+| 1 | 100 | 251 | 266 | 266 | 267 | 267 | 265.7 | 265.3 | 266 |
+| 1 | 150 | 347 | 364 | 364 | 370 | 370 | 363.7 | 363 | 363 |
+| 1 | 200 | 484 | 508 | 509 | 511 | 512 | 507 | 507 | 507 |
 | 4 | 50 | 289 | 294 | 294 | 294 | 294 | 294 | 294 | 294 |
 | 4 | 100 | 576 | 590 | 590 | 589 | 590 | 590 | 590 | 590 |
 | 4 | 150 | 852 | 868 | 868 | 868 | 868 | 868 | 868 | 868 |
 | 4 | 200 | 1163 | 1188 | 1188 | 1188 | 1190 | 1188 | 1188 | 1188 |
 | 5 | 50 | 74 | 83 | 83 | 83 | 83 | 83 | 83 | 83 |
-| 5 | 100 | 129 | 150 | 150 | 152 | 151 | 150 | 149.3 | 149.3 |
-| 5 | 150 | 174 | 200 | 201 | 201 | 202 | 199.3 | 199.3 | 199 |
+| 5 | 100 | 129 | 150 | 150 | 152 | 151 | 150 | 149.7 | 149.3 |
+| 5 | 150 | 174 | 200 | 201 | 201 | 202 | 199 | 199.3 | 199 |
 | 5 | 200 | 244 | 271 | 271 | 274 | 272 | 270 | 270 | 270 |
-| 6 | 50 | 91 | 97 | 98 | 98 | 98 | 98.3 | 98 | 98 |
-| 6 | 100 | 175 | 189 | 190 | 191 | 191 | 188.7 | 188 | 188.3 |
-| 6 | 150 | 269 | 290 | 292 | 292 | 294 | 291.7 | 291 | 290.3 |
-| 6 | 200 | 350 | 373 | 374 | 377 | 377 | 373.3 | 373 | 372.3 |
+| 6 | 50 | 91 | 97 | 98 | 98 | 98 | 98 | 98 | 98 |
+| 6 | 100 | 175 | 189 | 190 | 191 | 191 | 188.3 | 188.7 | 188 |
+| 6 | 150 | 269 | 290 | 292 | 292 | 294 | 291.3 | 291.3 | 290 |
+| 6 | 200 | 350 | 373 | 374 | 377 | 377 | 373 | 373 | 372.7 |
 | 7 | 50 | 64 | 74 | 74 | 74 | 74 | 74 | 74 | 74 |
-| 7 | 100 | 109 | 122 | 125 | 123 | 123 | 123 | 122.7 | 123 |
-| 7 | 150 | 137 | 153 | 160 | 158 | 158 | 153 | 153 | 152.7 |
-| 7 | 200 | 210 | 234 | 235 | 235 | 235 | 234 | 234 | 234 |
+| 7 | 100 | 109 | 122 | 125 | 123 | 123 | 123 | 123.3 | 122.7 |
+| 7 | 150 | 137 | 153 | 160 | 158 | 158 | 153 | 153 | 152.3 |
+| 7 | 200 | 210 | 234 | 235 | 235 | 235 | 234 | 234 | 233.7 |
 | 8 | 50 | 83 | 92 | 92 | 92 | 92 | 92 | 92 | 92 |
 | 8 | 100 | 176 | 189 | 189 | 188 | 189 | 189 | 189 | 189 |
-| 8 | 150 | 213 | 236 | 241 | 239 | 239 | 234.7 | 234 | 234 |
-| 8 | 200 | 267 | 293 | 298 | 300 | 299 | 295 | 293.7 | 291.3 |
-| **total** | | **6852** | **7258** | **7286** | **7298** | **7302** | **7259.3** | **7253.0** | **7250.0** |
+| 8 | 150 | 213 | 236 | 241 | 239 | 239 | 234 | 234.3 | 234 |
+| 8 | 200 | 267 | 293 | 298 | 300 | 299 | 294.7 | 294 | 291.7 |
+| **total** |  | **6852** | **7258** | **7286** | **7298** | **7302** | **7256.7** | **7256.0** | **7249.3** |
 
-**Ablation** (240 original instances, `-T 20 -t 0.005`, mean of 2 seeds):
+**Ablation** (240 original instances, `-T 20 -t 0.005`, mean of 3 seeds; run on a Linux machine with four cores,
+`results/bpp/ablation_2026-11`, `problems/clp/experiments/run_ablation.sh`):
 
 | configuration | bins |
 |---|---|
-| construction with the profit v^2 (`--no_swo --no_improve`) | 7383.5 |
-| construction maximizing the volume (kappa = 1) | 7608.5 |
-| + squeaky wheel optimization | 7268.0 |
-| squeaky wheel optimization without learning (`--swo_rate 0`, only noise) | 7307.5 |
-| + set covering MILP (`--milp 60`) | 7258.0 |
-| + harvest of bins (`--harvest 10`) | 7252.5 |
+| construction with the profit v^2 (`--no_swo --no_improve`) | 7383.3 |
+| construction maximizing the volume (kappa = 1) | 7594.0 |
+| + squeaky wheel optimization | 7272.3 |
+| squeaky wheel optimization without learning (`--swo_rate 0`, only noise) | 7306.3 |
+| squeaky wheel optimization with the time of the recombination (`-T 26`) | 7270.7 |
+| + recombination (`--milp 60`) | 7256.3 |
+| + harvest of bins (`--harvest 10`) | 7254.0 |
 
-The profit v^kappa and the squeaky wheel optimization with learning give most of the gain. The MILP and the
-harvest add 10 and 5 bins (with the budget of F5 the harvest alone is worth 10 bins in the 3-seed tests). On
-the held-out classes 2 and 3 the MILP saves 10.8 bins in 80 instances (Wilcoxon p = 0.0002). The MILP improves
-1 bin in about 4-13% of the instances, and it never made a solution worse in our campaigns. The LP of the pool
-leaves at most 0.5% to gain, so this scheme is near its limit.
+The profit v^kappa and the squeaky wheel optimization with learning give most of the gain. The recombination saves
+14.3 bins with respect to the squeaky wheel optimization with the same time (Wilcoxon p = 7e-5); with the budget of
+Fast the harvest alone is worth 9.3 bins, and with the budget of Balanced it adds 2.3 (not significant). The
+recombination improves a solution in roughly 4-14% of the runs and it never made a solution worse. On a blind set of 128
+generated instances the LP of the pool leaves at most 0.4% to gain, so with these pools this scheme is near its limit.
 
-**With rotation** (`--rot`, 6 orientations; Mahvash et al. 2018, Table 1, sums of their averages x 10): B100 gives
-6831.0 ± 2.0 bins in classes 1 and 4-8 (3 seeds, 98 s per instance) against 6854 of their column generation, and
-2154.3 ± 0.6 in classes 2 and 3 (3 seeds, 117 s) against 2159; all the classes: 8985.3 against 9013 (-0.31%). F5 and
-H20 with rotation give 6840.0 in classes 1 and 4-8. The BRKGA values with rotation of the paper of Goncalves and
-Resende (6837) are below the lower bound in three cells, so we do not use them as reference.
+**With rotation** (`--rot`, 6 orientations; Mahvash et al. 2018, Table 1, sums of their averages x 10; total bins):
+
+| configuration | classes 1 and 4-8 | classes 2 and 3 | eight classes |
+|---|---|---|---|
+| Fast | 6840.7 ± 0.6 | 2163.3 ± 0.6 | 9004.0 |
+| Balanced | 6836.3 ± 0.6 | 2157.3 ± 3.2 | 8993.7 |
+| Quality | 6827.7 ± 0.6 | 2154.7 ± 2.1 | 8982.3 |
+| Mahvash et al. (column generation) | 6854 | 2159 | 9013 |
+
+The BRKGA values with rotation of the paper of Goncalves and Resende (6837) are below the lower bound in three
+cells, so we do not use them as reference. The time of Quality is lower than that of Mahvash et al. only from about 150 boxes on.
 
 **Vertical support, industrial regime.** The instances of Elhedhli, Gzara and Yildiz (2019) (1200x800x2055 mm
 pallet, 50-2000 boxes) were converted to the format of this program; the loaded boxes must have at least 70% of
 their base supported (`--support area`). With `--no_improve --kappa 1 -t 2`, the sequential construction
-needs 144.6 bins (sum over the 16 cells of 500-2000 boxes of the mean number of bins of 5 instances; one run per
-instance, 18 s per instance, every box with at least 70% of support, checked with an independent script) against
-153.6 of LCGA (608 s per instance on an Intel i7-5500U). Most of this gain comes from the time per bin (`-t 2`); `--kappa 1` only helps with
-instances built from a product catalog. Caveats: our instances are from the same distribution, but we could not
-verify that they are the same instances of the paper; LCGA does not impose the support in every box; the MILP
-does not scale to 500-1000 boxes (it improves 1 of 36 instances) and it is not used there. Stricter supports
-are expensive for the block generator (at least 85% of the base: +10% of bins; fully supported boxes: +80%).
+needs 144.4 bins (sum over the 16 cells of 500-2000 boxes of the mean number of bins of 5 instances; 17.9 s per instance,
+every box with at least 70% of support, checked with the independent validator) against
+153.6 of LCGA (608 s per instance on an Intel i7-5500U). For 50-200 boxes the squeaky wheel loop with `-T 10 -t 0.5 --kappa 1`
+needs 110.7 bins in the 80 instances (115.0 for LCGA). The harvest and the recombination with `--partition` (compatible
+with the support) did not improve any of the runs in these instances, so the gain comes from the construction and the time per bin.
+Caveats: our instances are from the same distribution, but we could not verify that they are the same instances of
+the paper; LCGA does not impose the support in every box; the recombination does not scale to 500-1000 boxes
+either (it improves a solution in 7 of 108 runs of Fast and in 0 of Quality). Stricter supports are expensive for the block
+generator (see the paper).
 
-**Reproduce** (`results/bpp`):
+**Reproduce.** The campaigns of the paper are run and analysed with the programs in `tools/` (see `tools/README.md`):
+
+     python tools/runners/run_campaign.py test --seed 1 --classes 1 --ns 50 --insts 1 "Fast|-T 4 -t 0.005 --harvest 10 --milp 30"
+     powershell -File tools/chains/paper_campaigns.ps1 -List
+
+`tools/analysis` recomputes the totals, differences and tests of the paper from the result files. The older scripts
+`problems/clp/experiments/run_mpv.sh` and `summarize_mpv.py` run the instances in parallel, validate every solution and
+summarize the totals:
 
      ./problems/clp/experiments/run_mpv.sh results/bpp/x.csv "1 4 5 6 7 8" "$(seq -s' ' 1 10)" 4 -- -T 20 -t 0.005 --harvest 10 --milp 60
      python3 problems/clp/experiments/summarize_mpv.py results/bpp/x.csv
 
-`run_mpv.sh` runs the instances in parallel, writes the solutions and validates them;
 `run_bpp.sh` and `summarize_bpp.py` do the same with the generated instances. The old results of the
 construction with the squeaky wheel optimization alone (7274 bins with `-T 30`) are in `results/bpp`.
+
 
 Code structure
 -------
@@ -233,6 +277,9 @@ Code structure
   * `main_bpp.cpp`, `main_uld.cpp`, `main_clp.cpp`: the three programs.
   * `validate_bpp.py`, `validate_uld.py`: independent validators.
   * `experiments/`: scripts of the experiments; `benchs/`: instances.
+* `tools/`: generators and converters of instances, runner and chain of the campaigns of the paper, and the
+  analysis programs that recompute its tables (see `tools/README.md`).
+* `escritos/`: the drafts of the papers (`bpp`: 3D bin packing; `paper`: air cargo palletization).
 
 Implementation notes
 -------
