@@ -16,7 +16,10 @@ over complete solutions. Column generation methods \citep{Mahvash2018,Elhedhli20
 patterns with a pricing problem guided by dual prices and choose the best combination of patterns with
 a set covering or partitioning model. The first family produces many good bins during the search but
 keeps only the solution in which they appear; the second recombines bins but generates each one with
-a costly pricing problem.
+a costly pricing problem. A third line, for container loading, fills the pool with the patterns that a
+constructive single container algorithm produces and selects among them with a set covering or partitioning model
+\citep{Eley2003,Che2011}, as \citet{Monaci2006} did for two-dimensional bin packing, but it has not been evaluated on the
+benchmark of \citet{Martello2000}.
 
 This paper starts from a different observation: a strong algorithm for the single container loading
 problem, which maximises the volume loaded into one container, is a good basis for bin packing if its
@@ -51,7 +54,9 @@ column generation methods.
   covering, or by set partitioning when removing a box can make a bin infeasible, with a stopping rule and a
   reduced-cost fixing derived from the LP relaxation of the pool (Sections~\ref{sec:m-pool}--\ref{sec:m-cover}).
   Selecting patterns produced by a single container algorithm with a set partitioning or covering model goes back to
-  \citet{Eley2003} and \citet{Che2011}; here the patterns come from the search itself, without pricing.
+  \citet{Eley2003}, who also keeps the solutions generated inside the search of its single container algorithm, to
+  \citet{Monaci2006} and to \citet{Che2011}. We extend that idea with a squeaky wheel loop that makes the patterns
+  differ from one bin to the next, and with a stopping rule and a column fixing derived from the LP of the pool.
 \item An experimental study on the benchmark of \citet{Martello2000}, with fixed orientation and with
   rotations, and on industrial instances with vertical support \citep{Elhedhli2019}, with an ablation
   of the components, matched-time controls and instances held out from the design
