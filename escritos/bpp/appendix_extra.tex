@@ -2,9 +2,9 @@
 \label{app:negative}
 \label{sec:e-negative}
 
-We tried other changes during the development. None of them is part of the method, and we list them because they delimit what can be expected from this approach. The tests were run
+We evaluated other modifications of the method while developing it. None of them is part of the final method, and we list them because they delimit what can be expected from this approach. The tests were run
 with earlier versions of the code, with fewer seeds and on the sets used for development (the 72 original instances of classes 1 and 4--8 with sizes 50 to 200 and the first three instances of each cell,
-unless the table says otherwise), and the raw files of some of them were not preserved. The numbers are those obtained then.
+unless the table says otherwise). The numbers are those obtained in those tests.
 
 \begin{table}[t]
 \centering
@@ -33,16 +33,17 @@ Union of the pools of the three seeds & 240 original instances, MILP limit 30 s 
 \end{tabular}
 \end{table}
 
-Two results are worth stressing. The column generation with dual prices, the usual way to generate patterns, is worse than spending the same time in the squeaky wheel loop and recombining its bins, at least with 20 s for the
-generation, which does not tell us how it would behave with a budget of the order of 1000 s as the one of \citet{Mahvash2018}. And the improvement phase that removes a bin by ruin and recreate, effective when the bins have a large slack as in the industrial instances,
-loses against giving the time to the squeaky wheel loop in the benchmark of \citet{Martello2000}, where the bins have a slack of about 5\%.
+Two results deserve comment. The column generation with dual prices, the usual way to generate patterns, is worse than spending the same time in the squeaky wheel loop and recombining its bins, at least with 20 s for the
+generation; the test does not show how it would behave with a budget of the order of 1000 s, as in \citet{Mahvash2018}. The improvement phase, which removes a bin by ruin and recreate, improves on the construction alone
+but obtains worse totals than giving its time to the squeaky wheel loop, both in the benchmark of \citet{Martello2000}, where the bins have a slack of about 5\%, and in the small industrial instances.
 The option that stops the search when the LP of the pool proves the incumbent optimal for the pool is not a negative result but a trade of quality for time: on 192 generated instances it reduces the mean time by 14\% (31.3 s against 36.2 s) and
 increases the total by four bins in 5870 (0.07\%, $p=0.22$), so we do not include it in the three configurations.
 
 \section{Improvement phase for instances with few bins}
 \label{app:improve}
 
-\pend{Decide whether this phase stays in the method. It is used only for the small industrial instances; if the squeaky wheel loop with the partitioning model matches it there, remove it.}
+We keep this phase as an option of the program, but it is not part of the three configurations, and in every comparison that we made the squeaky wheel loop alone obtained better totals than it: on 72 generated instances (2139 against 2168 bins), and
+on the small industrial instances ($110.7$ against $112.7$ bins, Section~\ref{sec:e-ind}). The phase does improve the construction alone (2172 to 2168 bins on the generated instances and 115.0 to 112.7 on the small industrial ones), but the loop gains more with less time.
 
 When a solution has only a few bins, as in the small industrial instances, the search can be
 followed by a phase that tries to remove one bin. It receives the part of the time limit $T$ that

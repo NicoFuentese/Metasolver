@@ -49,12 +49,10 @@ Without rotations, a configuration that runs 6.7~s per instance obtains totals a
 4--8, against 7252 for the column generation of \citet{Mahvash2018}. With rotations, the longer
 configuration obtains 8982.3 bins on the eight classes, against 9013 for \citet{Mahvash2018}. The
 recombination saves 10 to 17 bins with respect to the squeaky wheel loop with the same time on
-instances that were not used to design the method, and the LP of the pool proves in about 95\% of the
-runs that the pool holds no better solution. On industrial instances with 70\% support on every box,
-the method uses 5.9\% fewer bins than the column generation over layers of \citet{Elhedhli2019}.
-\pend{Update these figures when the repeated campaigns (ablation, rotations) and the industrial
-experiments with the whole pipeline are finished; normalise the times of the literature before
-writing ``at the level of BRKGA in a fraction of its time''.}
+instances that were not used to design the method, and about 95\% of the runs end with a proof that the pool holds no better solution,
+in most of them by the LP alone. On industrial instances with 70\% support on every box,
+the construction alone uses 6.0\% fewer bins than the column generation over layers of \citet{Elhedhli2019} when $n\ge 500$, although
+the recombination did not improve any solution there.
 
 \paragraph{Outline.}
 Section~\ref{sec:related} reviews the related work and Section~\ref{sec:problem} defines the problem.

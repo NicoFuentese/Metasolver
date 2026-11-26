@@ -467,9 +467,8 @@ box of its bottom layer has at least a fraction $0.7$ of its base area resting d
 faces of the boxes below. The check is made when a block is placed, so every load that BSG returns,
 and every harvested load, satisfies it. The recombination uses the partitioning model, so that no
 box is removed from a load. The rest of the method is unchanged.
-\pend{Industrial experiments with the whole pipeline (squeaky wheel, harvest and the partitioning
-model) at the same time as the construction alone; today the large industrial instances use the
-construction alone with $\tau=2$ s and $\kappa=1$ (Section~\ref{sec:e-ind}).}
+We tested the whole pipeline (squeaky wheel loop, harvest and partitioning recombination) on the industrial instances. The recombination did not improve any run there, and the construction alone with $\tau=2$ s and $\kappa=1$
+is the better configuration for the large instances, and the loop alone for the small ones (Section~\ref{sec:e-ind}).
 
 \subsection{Parameters and configurations}
 \label{sec:m-params}
@@ -480,10 +479,9 @@ recombination, in the time per bin, and in whether the harvest is active. For a 
 harvest compensates for the small number of squeaky wheel iterations; for a long search the
 pool already holds many patterns without it.
 With three seeds, \cfgqual{} with the harvest gives $7250.0\pm 1.0$ against $7249.3\pm 1.2$ without it ($p=0.72$), which supports leaving it out (Section~\ref{sec:e-mpv}).
-\pend{Report the sensitivity of $\rho$, $\sigma$, the fraction of least loaded bins, $K$, $\theta$ and $\tau$ (campaign \texttt{sens}, analysed but not yet written), and state in one place that
-$\kappa$, $\rho$, $\sigma$, $\theta$ and $K$ were chosen on the original instances.} The method is implemented in C++ on top of the
+The values of $\kappa$, $\rho$, $\sigma$, $\theta$ and $K$ were chosen on the original instances, and the sensitivity to $\rho$, $\sigma$, the fraction of least loaded bins, $K$, $\theta$ and $\tau$ is reported in Section~\ref{sec:e-ablation}. The method is implemented in C++ on top of the
 Metasolver framework, with HiGHS 1.15.1 as the LP and MILP solver; the recombination is
-compiled only when HiGHS is available. The code is in the branch \texttt{nico/bpp-mejoras} of \url{https://github.com/NicoFuentese/Metasolver}.
+compiled only when HiGHS is available. The implementation is available at \url{https://github.com/NicoFuentese/Metasolver} (branch \texttt{nico/bpp-mejoras}).
 
 \begin{table}[t]
 \centering
@@ -511,8 +509,7 @@ Minimum base support (industrial instances) & & $0.7$\\
 \begin{table}[t]
 \centering
 \caption{Configurations. $T$: time limit of the squeaky wheel loop; $\tau$: BSG time per bin;
-$K$: bins harvested per BSG call; $T_{\mathrm{milp}}$: time limit of the recombination, which adds to $T$.
-In the documentation of the code they are called F5, H20 and B100.}
+$K$: bins harvested per BSG call; $T_{\mathrm{milp}}$: time limit of the recombination, which adds to $T$.}
 \label{tab:configs}
 \begin{tabular}{@{}lrrrr@{}}
 \toprule

@@ -6,28 +6,33 @@ We presented a method for the three-dimensional bin packing problem that generat
 single-bin loader inside a squeaky wheel loop over the profits of the box types, enlarges the pool with
 the loads that the loader explores and discards, and recombines the pool with a set covering model, or
 with a set partitioning model when the bins must respect vertical support. The LP relaxation of the
-pool tells when the recombination has nothing more to offer, and in most runs no integer program is
-solved.
+pool indicates when the recombination has nothing more to offer, which happens in most runs, so that an
+integer program is rarely solved.
 
-On the benchmark of \citet{Martello2000} the method is at the level of the best published totals
-without rotations and below them with rotations. The squeaky wheel loop gives most of the improvement
-over a single construction; the recombination adds a small but consistent saving, also on instances
-that were not used to design the method, and the harvest makes it effective with short budgets. On
-industrial instances with 70\% support on every box the method uses fewer bins than the column
-generation over layers of \citet{Elhedhli2019}.
-\pend{Rewrite after the pending experiments: the role of the squeaky wheel loop and of the
-partitioning model under vertical support is not measured yet.}
+On the benchmark of \citet{Martello2000} the method obtains totals at the level of the best published
+ones without rotations: \cfgqual{} obtains 7249.3 bins on classes 1 and 4--8, against 7252 for
+\citet{Mahvash2018}, and \cfgfast{}, with 6.7 s per instance, obtains 7256.7, against 7258 for BRKGA. With rotations
+the three configurations are below the total of \citet{Mahvash2018} on the eight classes (9004.0, 8993.7 and
+8982.3 against 9013), although the margin is small in classes 2 and 3. The squeaky wheel loop accounts for most of
+the improvement over a single construction. The recombination saves a further 10 to 17 bins with respect to the loop alone
+with the same time, also on instances that were not used to design the method, and the harvest makes it effective
+with short budgets. On industrial instances with 70\% support on every box, the construction alone, with a time of 2 s per bin,
+uses 6.0\% fewer bins than the column generation over layers of \citet{Elhedhli2019} when $n\ge 500$, and the squeaky wheel loop
+uses 3.8\% fewer when $n<500$. In these instances the partitioning recombination did not improve any run, so the evidence for
+the recombination comes from instances without support, and what improves the industrial results is the time spent in each bin.
 
-\paragraph{Limits.}
+\paragraph{Limitations.}
 The recombination can only choose among the patterns in the pool. With several hundred boxes the pools
-of our budgets leave little room (at most 0.9\% of the bins according to their LP), so the quality
-depends on the generation of patterns and not on the recombination. The covering model needs that
-removing a box keeps a bin feasible; the partitioning model removes that requirement at the price of a
-harder model. The comparisons with the literature are made on totals, from other machines and an
-unknown number of runs.
+of our budgets leave little room: on 36 instances with 500 and 1000 boxes the recombination improved the solution in 7 of 108 runs of \cfgfast{},
+in 1 of \cfgbal{} and in none of \cfgqual{}. The quality then depends on the generation of patterns and not on the recombination.
+The covering model requires that removing a box keeps a bin feasible; the partitioning model removes that requirement at the price of a
+harder model, and we found no instance with support in which it pays. The parameters of the squeaky wheel loop
+and of the harvest were chosen on the original instances. The comparisons with the literature are made on
+totals, from other machines and with an unknown number of runs, and the advantage in time of \cfgqual{} over the column generation of
+\citet{Mahvash2018} holds only from about 150 boxes on.
 
 \paragraph{Future work.}
 The generator receives no information from the recombination. Using the dual prices of the pool as
-profits for BSG, as column generation does, did not pay with our budgets, but it may with longer ones.
-Other loading constraints that a single-bin loader can enforce (weight limits, load balance, fragility)
-fit the same scheme with the partitioning model.
+profits for BSG, as column generation does, did not pay with our budgets, but it could do so with longer ones.
+Other loading constraints that a single-bin loader can enforce, such as weight limits, load balance or fragility,
+could be handled with the same scheme and the partitioning model.

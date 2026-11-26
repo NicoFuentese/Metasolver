@@ -9,7 +9,7 @@ This appendix collects tables that support statements of Section~\ref{sec:experi
 \small
 \caption{Options of \texttt{BSG\_BPP} for each configuration.}
 \label{tab:e-commands}
-\begin{tabular}{@{}ll@{}}
+\begin{tabular}{@{}lp{9.5cm}@{}}
 \toprule
 Configuration & Options\\
 \midrule
@@ -17,7 +17,8 @@ Configuration & Options\\
 \cfgbal{} & \texttt{-T 20 -t 0.005 --harvest 10 --milp 60}\\
 \cfgqual{} & \texttt{-T 100 --milp 100}\\
 Industrial, $n\ge 500$ & \texttt{--no\_improve --kappa 1 -t 2 --support area}\\
-Industrial, $n<500$ & \texttt{-T 30 --swo\_frac 0.3 --scratch --improve\_time 2 --kappa 1 --support area}\\
+Industrial, $n<500$ & \texttt{-T 10 -t 0.5 --kappa 1 --support area}\\
+Industrial, $n<500$, improvement phase & \texttt{-T 30 --swo\_frac 0.3 --scratch --improve\_time 2 --kappa 1 --support area}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -25,23 +26,18 @@ Industrial, $n<500$ & \texttt{-T 30 --swo\_frac 0.3 --scratch --improve\_time 2 
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{3pt}
-\caption{Budgets on the 240 original instances (classes 1 and 4--8). $T$, $T_{\mathrm{milp}}$: time limits of the search and
-the recombination; $K$: harvest; $\tau=0.005$ s for the rows with harvest, except the sixth, and $\tau=0.02$ s for the others. The last column is the squeaky wheel
-loop alone with a time limit equal to the mean time of the row (mean and standard deviation over three seeds where two values are given). The first, third, sixth and seventh rows, and the controls of the first, third and seventh, come from the repetition campaigns (three seeds, four runs in parallel); the other
-rows come from earlier campaigns with two to five runs in parallel (see Section~\ref{sec:e-setup}).}
+\caption{Budgets on the 240 original instances (classes 1 and 4--8), mean of three seeds. $T$, $T_{\mathrm{milp}}$: time limits of the search and
+the recombination; $K$: harvest; $\tau=0.005$ s for \cfgfast{} and \cfgbal{}, and $\tau=0.02$ s for the two rows with $T=100$ s. The last column is the squeaky wheel
+loop alone with a time limit equal to the mean time of the row.}
 \label{tab:e-budget}
-\begin{tabular}{@{}lrrrrlrl@{}}
+\begin{tabular}{@{}lrrrrrl@{}}
 \toprule
- & $T$ & $T_{\mathrm{milp}}$ & $K$ & Bins & Time (s) & Seeds & Squeaky wheel alone\\
+ & $T$ & $T_{\mathrm{milp}}$ & $K$ & Bins & Time (s) & Squeaky wheel alone\\
 \midrule
-\cfgfast{} & 4 & 30 & 10 & $7256.7\pm 0.6$ & 6.7 & 3 & $7273.3\pm 1.5$ (6.6 s)\\
-budget 10 & 10 & 20 & 0 & 7272 & 12.6 & 1 & 7271 (13 s)\\
-\cfgbal{} & 20 & 60 & 10 & $7256.0\pm 1.0$ & 25.9 & 3 & $7269.0\pm 1.0$ (24.3 s)\\
-$T=33$ & 33 & 60 & 0 & 7255 & 41.9 & 1 & $7268.7\pm 2.5$ (34.8 s, earlier campaign)\\
-$T=50$ & 50 & 100 & 10 & 7255 & 60.2 & 1 & ---\\
-$T=100$, harvest & 100 & 100 & 10 & $7250.0\pm 1.0$ & 103.9 & 3 & $7266.3\pm 0.6$ (103.9 s)\\
-\cfgqual{} & 100 & 100 & 0 & $7249.3\pm 1.2$ & 100.3 & 3 & $7266.3\pm 0.6$ (103.9 s)\\
-$T=200$ & 200 & 150 & 0 & 7247 & 211.3 & 1 & ---\\
+\cfgfast{} & 4 & 30 & 10 & $7256.7\pm 0.6$ & 6.7 & $7273.3\pm 1.5$ (6.6 s)\\
+\cfgbal{} & 20 & 60 & 10 & $7256.0\pm 1.0$ & 25.9 & $7269.0\pm 1.0$ (24.3 s)\\
+$T=100$, harvest & 100 & 100 & 10 & $7250.0\pm 1.0$ & 103.9 & $7266.3\pm 0.6$ (103.9 s)\\
+\cfgqual{} & 100 & 100 & 0 & $7249.3\pm 1.2$ & 100.3 & $7266.3\pm 0.6$ (103.9 s)\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -49,7 +45,7 @@ $T=200$ & 200 & 150 & 0 & 7247 & 211.3 & 1 & ---\\
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
-\caption{Time per instance in seconds (wall-clock, four processes in parallel) over the 720 runs of each configuration in the repetition on the 240 original instances. Limit: runs in which the MILP reached its time limit without a proof, over 720.}
+\caption{Time per instance in seconds (wall-clock) over the 720 runs of each configuration on the 240 original instances. Limit: runs in which the MILP reached its time limit without a proof, over 720.}
 \label{tab:e-time}
 \begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
@@ -66,7 +62,7 @@ Configuration & Mean & Median & 90th pct. & Maximum & Mean, $n=50$ & Mean, $n=20
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
-\caption{Contribution of the recombination inside the runs of the repetition (240 original instances, three seeds). Before: total bins of the squeaky wheel loop (the incumbent that the
+\caption{Contribution of the recombination inside the runs (240 original instances, three seeds). Before: total bins of the squeaky wheel loop (the incumbent that the
 recombination starts from); After: total bins at the end; Better: instances in which the recombination saved a bin (the number of instances where it made the solution worse is zero in every case);
 $p$: Wilcoxon signed-rank test per seed on the differences per instance; $t_{\mathrm{milp}}$: mean time of the recombination.}
 \label{tab:e-within}
@@ -92,20 +88,20 @@ Configuration & Seed & Before & After & Diff. & Better & $p$ & $t_{\mathrm{milp}
 
 \begin{table}[t]
 \centering
-\small\setlength{\tabcolsep}{3.5pt}
-\caption{Second blind set (128 instances, one seed, all the configurations in one campaign; Table~\ref{tab:e-conditions}). Pool: mean number of columns. MILP improves: runs in which the MILP found a solution with fewer bins than the squeaky wheel loop.
-Proven: runs that end with a proof that the pool has no better solution (by the LP or by the MILP); unproven: runs in which the MILP reached its limit. ``plain MILP'': warm start only, without the
-LP proof and the fixing.}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\caption{Blind set (128 instances, three seeds). Bins: mean and standard deviation of the total over the seeds. Pool: mean number of columns. MILP improves, Proven and Unproven: number of runs (of 384, three seeds)
+in which the MILP found a solution with fewer bins than the squeaky wheel loop, in which the run ends with a proof that the pool has no better solution (by the LP or by the MILP), and in which the MILP reached its limit without a proof.
+MILP time: mean per run. ``plain MILP'': warm start only, without the LP proof and the fixing (no proof is recorded).}
 \label{tab:e-recomb}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
 Configuration & Bins & Time (s) & Pool & MILP improves & Proven & Unproven & MILP time (s)\\
 \midrule
-Squeaky wheel alone, $T=26$ s & 3893 & 25.3 & --- & --- & --- & --- & ---\\
-\cfgfast{} without harvest & 3893 & 6.2 & 467 & 9 & 122 & 6 & 2.3\\
-\cfgfast{} & 3887 & 6.9 & 3493 & 14 & 121 & 7 & 2.9\\
-\cfgbal{} & 3882 & 24.6 & 11553 & 12 & 122 & 6 & 5.2\\
-\cfgbal{}, plain MILP & 3884 & 36.6 & 11604 & 11 & --- & --- & 17.1\\
+Squeaky wheel alone, $T=26$ s & $3893.0\pm 1.0$ & 25.3 & --- & --- & --- & --- & ---\\
+\cfgfast{} without harvest & $3893.0\pm 0.0$ & 5.8 & 466 & 28 & 371 & 13 & 1.9\\
+\cfgfast{} & $3884.0\pm 1.0$ & 6.3 & 3524 & 54 & 368 & 16 & 2.4\\
+\cfgbal{} & $3882.0\pm 1.0$ & 24.8 & 12052 & 36 & 363 & 21 & 5.4\\
+\cfgbal{}, plain MILP & $3883.7\pm 0.6$ & 35.3 & 12029 & 30 & --- & --- & 15.9\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -113,24 +109,21 @@ Squeaky wheel alone, $T=26$ s & 3893 & 25.3 & --- & --- & --- & --- & ---\\
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}
-\begin{axis}[width=0.8\textwidth,height=5.2cm,ybar,bar width=11pt,xmin=0.4,xmax=8.6,ymin=0,ymax=8,xtick={1,2,3,4,5,6,7,8},
+\begin{axis}[width=0.8\textwidth,height=5.2cm,ybar,bar width=11pt,xmin=0.4,xmax=8.6,ymin=0,ymax=5,xtick={1,2,3,4,5,6,7,8},
   xlabel={Class},ylabel={Bins saved by the recombination},grid=major,legend style={font=\footnotesize,at={(0.98,0.97)},anchor=north east},
   tick label style={font=\footnotesize},label style={font=\footnotesize},nodes near coords,every node near coord/.append style={font=\scriptsize}]
-\addplot[fill=blue!55,bar shift=0pt] coordinates {(1,7.0) (4,0) (5,1.0) (6,1.0) (7,0.3) (8,2.0)};
-\addlegendentry{first generated set (classes 1, 4--8)}
-\addplot[fill=orange!75,bar shift=0pt] coordinates {(2,6.6) (3,4.0)};
-\addlegendentry{original classes 2, 3}
+\addplot[fill=blue!55,bar shift=0pt] coordinates {(1,3.0) (2,3.7) (3,2.3) (4,0) (5,0) (6,0) (7,0.3) (8,1.7)};
+\addlegendentry{\cfgbal{}, blind set}
 \end{axis}
 \end{tikzpicture}
-\caption{Bins saved by the recombination with respect to the squeaky wheel of 33 s that it starts from, by class (mean over the seeds; sums over the
-instances of the class). Class 4 gains nothing.}
+\caption{Bins saved by the recombination of \cfgbal{} with respect to the squeaky wheel alone with the same time, by class (blind set; mean over the seeds; sums over the 16 instances of the class). Classes 4, 5 and 6 gain nothing.}
 \label{fig:e-class}
 \end{figure}
 
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
-\caption{Additional industrial instances (construction alone, support 70\%, one run, the three configurations in the same campaign): total bins. LB: lower bound. Resampled: 48 instances; catalogue: 24 instances.}
+\caption{Additional industrial instances (construction alone, support 70\%, one run per instance): total bins. LB: lower bound. Resampled: 48 instances; catalogue: 24 instances.}
 \label{tab:e-indnew}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
@@ -140,6 +133,71 @@ $\kappa=1$, $\tau=2$ s & 438 & 233 & 18.4--19.1\\
 $\kappa=2$, $\tau=0.02$ s (default for MPV) & 497 & 264 & 0.3--0.7\\
 $\kappa=2$, $\tau=2$ s & 438 & 241 & 18.5--20.0\\
 LB & 390 & 216 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Sensitivity to the parameters of the squeaky wheel loop and of the harvest: 72 original instances (classes 1 and 4--8, sizes 50 to 200, instances 1 to 3), configuration \cfgfast{} with one parameter changed, three seeds, four runs in parallel.
+Total: mean and standard deviation over the seeds; Diff.: difference with the default, in bins; Better/worse: number of instances in which the variant is better or worse than the default (means over the seeds); $p$: Wilcoxon signed-rank test on those means; time: mean per instance.}
+\label{tab:e-sens}
+\begin{tabular}{@{}llrrrrr@{}}
+\toprule
+Parameter & Value & Total & Diff. & Better/worse & $p$ & Time (s)\\
+\midrule
+ & default & $2172.7\pm 1.2$ & --- & --- & --- & 7.0\\
+\midrule
+$\rho$ & 0.1 & $2171.3\pm 2.1$ & $-1.3$ & 5/3 & 0.12 & 6.3\\
+ & 0.6 & $2171.3\pm 1.5$ & $-1.3$ & 4/1 & 0.13 & 6.9\\
+ & 1.0 & $2172.0\pm 1.0$ & $-0.7$ & 3/2 & 0.34 & 7.1\\
+$\sigma$ & 0 & $2170.7\pm 0.6$ & $-2.0$ & 4/0 & 0.066 & 6.4\\
+ & 0.02 & $2171.0\pm 0.0$ & $-1.7$ & 4/0 & 0.066 & 6.8\\
+ & 0.1 & $2172.3\pm 1.5$ & $-0.3$ & 2/1 & 0.59 & 7.0\\
+ & 0.2 & $2176.0\pm 1.7$ & $+3.3$ & 2/8 & 0.016 & 8.3\\
+Fraction of bins & 0.05 & $2170.7\pm 1.2$ & $-2.0$ & 4/1 & 0.14 & 6.1\\
+ & 0.2 & $2171.0\pm 1.0$ & $-1.7$ & 4/1 & 0.10 & 6.9\\
+ & 0.3 & $2171.7\pm 1.2$ & $-1.0$ & 3/2 & 0.42 & 7.2\\
+$K$ & 1 & $2171.0\pm 0.0$ & $-1.7$ & 6/2 & 0.40 & 6.0\\
+ & 3 & $2171.3\pm 1.2$ & $-1.3$ & 3/1 & 0.27 & 6.4\\
+ & 30 & $2172.0\pm 1.0$ & $-0.7$ & 2/1 & 0.29 & 7.2\\
+$\theta$ & 0.8 & $2170.7\pm 1.5$ & $-2.0$ & 6/1 & 0.047 & 6.7\\
+ & 0.9 & $2170.7\pm 1.5$ & $-2.0$ & 5/1 & 0.14 & 6.8\\
+ & 0.99 & $2171.0\pm 1.0$ & $-1.7$ & 4/1 & 0.10 & 6.3\\
+$\tau$ (s) & 0.002 & $2171.0\pm 1.0$ & $-1.7$ & 4/1 & 0.10 & 7.5\\
+ & 0.01 & $2172.3\pm 0.6$ & $-0.3$ & 3/2 & 0.79 & 6.7\\
+ & 0.02 & $2177.0\pm 1.0$ & $+4.3$ & 1/9 & 0.041 & 5.9\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small\setlength{\tabcolsep}{4pt}
+\caption{Industrial instances with 70\% support on every box: total bins over 80 instances ($n\ge 500$ and $n<500$), mean and standard deviation over three seeds (current version of the code, four runs in parallel); time per instance in brackets.
+$T$: time limit of the squeaky wheel loop; $\tau$: time per bin; ``recomb.'': harvest ($K=10$) and partitioning recombination. LCGA: sum over the cells of five times the mean of the cell \citep{Elhedhli2019}.}
+\label{tab:e-indsw}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Configuration & Bins & Time (s)\\
+\midrule
+\multicolumn{3}{@{}l}{$n\ge 500$ (80 instances)}\\
+Construction alone, $\tau=2$ s & $722.0\pm 1.0$ & 17.9\\
+Loop, $T=18$ s, $\tau=0.2$ s & $756.0\pm 1.7$ & 18.0\\
+Loop, $T=18$ s, $\tau=0.5$ s & $727.7\pm 0.6$ & 17.2\\
+Loop and recomb., $T=18$ s, $\tau=0.2$ s & $755.3\pm 2.5$ & 18.1\\
+Loop and recomb., $T=18$ s, $\tau=0.5$ s & $729.3\pm 1.5$ & 17.4\\
+Loop, $T=60$ s, $\tau=0.5$ s & $722.7\pm 0.6$ & 49.7\\
+Loop and recomb., $T=60$ s, $\tau=0.5$ s & $722.7\pm 0.6$ & 49.4\\
+LCGA & 768.0 & 608\\
+\midrule
+\multicolumn{3}{@{}l}{$n<500$ (80 instances)}\\
+Construction alone, $\tau=2$ s & $115.0\pm 0.0$ & 2.4\\
+Loop, $T=10$ s, $\tau=0.5$ s & $110.7\pm 0.6$ & 1.4\\
+Loop and recomb., $T=10$ s, $\tau=0.5$ s & $110.7\pm 0.6$ & 1.4\\
+Improvement phase, $T=30$ s & $112.7\pm 1.5$ & 3.5\\
+LCGA & 115.0 & 20\\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -50,9 +50,10 @@ recombines the pool with a set covering model, or with a set partitioning model 
 vertical support. The LP relaxation of the pool proves in most runs that the incumbent is the best
 combination of the pool, so that the integer program is rarely needed. On the benchmark of Martello,
 Pisinger and Vigo the method obtains totals at the level of the best published ones with fixed
-orientation and below them with rotations, and on industrial instances with 70\% support on every box it
-uses 5.9\% fewer bins than a column generation over layers.
-\pend{Revise the abstract with the final figures, including the times normalised by processor.}
+orientation, and below the best published column generation with rotations (8982.3 bins against 9013
+on the eight classes). On industrial instances with 70\% support on every box it uses 6.0\% fewer bins
+than a column generation over layers when the instances have 500 boxes or more, although there the
+recombination does not improve any solution.
 \end{abstract}
 
 \noindent\textbf{Keywords:} three-dimensional bin packing; set covering; squeaky wheel optimisation;
