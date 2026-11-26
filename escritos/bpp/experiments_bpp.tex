@@ -48,8 +48,11 @@ We compare with the totals published by \citet{Mahvash2018} (column generation),
 with the other methods of their Table~8), \citet{Zhu2012SD} (space defragmentation) and \citet{Elhedhli2019} (LCGA). Their
 results per instance are not published, so the comparison is by totals and without paired tests. To compare times we
 scale them by the single-thread rating of PassMark \citep{PassMark} (3741 for our processor, 1215 for that of BRKGA and
-1649 for that of LCGA): the limit of 130.6 s of BRKGA corresponds to about 42 s on our machine, an underestimate of its
-computing power because it evaluates its population in parallel. \citet{Mahvash2018} report no time without rotation.
+1649 for that of LCGA). On classes 1 and 4--8, BRKGA runs 200 generations in 42.0 s per instance on average and finds its
+best solution after 6.3 s (Table~8 of \citet{Goncalves2013}); scaled to our machine these are about 13.6 and 2.0 s. The
+scaling underestimates the computing power of BRKGA, which evaluates its population in parallel. LCGA needs 3.17 s, about
+1.4 s on our machine. \citet{Mahvash2018} report no time without rotation, and the machine of \citet{Zhu2012SD} is not
+recorded.
 
 \subsection{Comparison with the literature, fixed orientation}
 \label{sec:e-mpv}
@@ -58,26 +61,30 @@ computing power because it evaluates its population in parallel. \citet{Mahvash2
 \centering
 \small\setlength{\tabcolsep}{4pt}
 \caption{Total number of bins on the 240 original instances (classes 1 and 4--8, fixed orientation; Intel i5-14400, four runs in parallel). Ours: mean and
-standard deviation over three seeds; time per instance, mean (maximum). Literature: totals published, other machines.}
+standard deviation over three seeds; time per instance, mean (maximum). Literature: totals published, other machines;
+BRKGA: mean time of its 200 generations and, in brackets, mean time to its best solution. Scaled: time multiplied by the
+ratio of the PassMark single-thread ratings. $^\ast$BRKGA evaluates its population in parallel, so the scaled time
+underestimates its computing power.}
 \label{tab:e-main}
-\begin{tabular}{@{}lrll@{}}
+\begin{tabular}{@{}lrlll@{}}
 \toprule
-Method & Bins & Time per instance & Machine\\
+Method & Bins & Time per instance & Scaled to our machine & Machine\\
 \midrule
-\cfgfast{} (ours) & $7256.7\pm 0.6$ & 6.7 s (34 s) & i5-14400\\
-\cfgbal{} (ours) & $7256.0\pm 1.0$ & 25.9 s (80 s) & i5-14400\\
-\cfgqual{} (ours) & $7249.3\pm 1.2$ & 100.3 s (201 s) & i5-14400\\
+\cfgfast{} (ours) & $7256.7\pm 0.6$ & 6.7 s (34 s) & --- & i5-14400\\
+\cfgbal{} (ours) & $7256.0\pm 1.0$ & 25.9 s (80 s) & --- & i5-14400\\
+\cfgqual{} (ours) & $7249.3\pm 1.2$ & 100.3 s (201 s) & --- & i5-14400\\
 \midrule
-\citet{Mahvash2018} & 7252 & not reported & Intel 2.2 GHz\\
-\citet{Goncalves2013}, BRKGA & 7258 & up to 130.6 s & i7-2630QM 2 GHz\\
-\citet{Zhu2012SD} & 7269 & 30 s & not recorded\\
-\citet{Elhedhli2019}, LCGA & 7284 & 3.17 s & i7-5500U 2.4 GHz\\
+\citet{Mahvash2018} & 7252 & not reported & --- & Intel 2.2 GHz\\
+\citet{Goncalves2013}, BRKGA & 7258 & 42.0 s (best at 6.3 s) & 13.6 s (2.0 s)$^\ast$ & i7-2630QM 2 GHz\\
+\citet{Zhu2012SD} & 7269 & 30 s & --- & not recorded\\
+\citet{Elhedhli2019}, LCGA & 7284 & 3.17 s & 1.4 s & i7-5500U 2.4 GHz\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 On classes 1 and 4--8 (Table~\ref{tab:e-main}), \cfgfast{} obtains 7256.7 bins in 6.7 s per instance, 1.3 below BRKGA,
-whose limit corresponds to about 42 s on our machine. \cfgbal{} is not significantly better ($-0.7$, $p=0.48$), and
+whose 200 generations take about 13.6 s scaled to our machine (with parallel evaluation), so the two reach the same
+quality in comparable times. \cfgbal{} is not significantly better ($-0.7$, $p=0.48$), and
 \cfgqual{} is 7.3 bins below \cfgfast{} ($p=0.0005$) and 2.7 below the column generation of \citet{Mahvash2018}. This
 margin is small with respect to the differences that machines and numbers of runs can introduce, so we do not claim an
 improvement over \citet{Mahvash2018} in this setting. Figure~\ref{fig:e-curve} shows that the squeaky wheel loop alone
@@ -101,6 +108,8 @@ Appendix~\ref{app:cells}.
 \addplot[only marks,mark=triangle*,mark size=2.6pt,error bars/.cd,y dir=both,y explicit]
   coordinates {(6.6,7273.3) +- (0,1.5) (24.3,7269.0) +- (0,1.0) (103.9,7266.3) +- (0,0.6)};
 \addlegendentry{squeaky wheel alone}
+\addplot[only marks,mark=square*,mark size=2.2pt] coordinates {(13.6,7258)};
+\addlegendentry{BRKGA, scaled time}
 \addplot[dashed,no marks,domain=4:300] {7252};
 \addlegendentry{Mahvash et al. (7252)}
 \addplot[dotted,no marks,domain=4:300] {7258};
@@ -108,8 +117,9 @@ Appendix~\ref{app:cells}.
 \end{axis}
 \end{tikzpicture}
 \caption{Total bins against mean time per instance on the 240 original instances (mean of three seeds; bars: standard deviation). Circles: \cfgfast{}, \cfgbal{}
-and \cfgqual{}. Diamond: \cfgqual{} with the harvest. Triangles: squeaky wheel alone with $T=7$, 26 and 111 s. The horizontal lines are totals from the literature,
-whose times are not comparable.}
+and \cfgqual{}. Diamond: \cfgqual{} with the harvest. Triangles: squeaky wheel alone with $T=7$, 26 and 111 s. Square: BRKGA at the mean time of its 200 generations scaled
+to our machine (an underestimate, since it evaluates in parallel). The horizontal lines are totals from the literature;
+the time of \citet{Mahvash2018} is not reported.}
 \label{fig:e-curve}
 \end{figure}
 

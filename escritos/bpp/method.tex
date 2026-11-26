@@ -479,14 +479,21 @@ recombination, in the time per bin, and in whether the harvest is active. For a 
 harvest compensates for the small number of squeaky wheel iterations; for a long search the
 pool already holds many patterns without it.
 With three seeds, \cfgqual{} with the harvest gives $7250.0\pm 1.0$ against $7249.3\pm 1.2$ without it ($p=0.72$), which supports leaving it out (Section~\ref{sec:e-mpv}).
-The values of $\kappa$, $\rho$, $\sigma$, $\theta$ and $K$ were chosen on the original instances, and the sensitivity to $\rho$, $\sigma$, the fraction of least loaded bins, $K$, $\theta$ and $\tau$ is reported in Section~\ref{sec:e-ablation}. The method is implemented in C++ on top of the
+The values of $\kappa$, $\rho$, $\sigma$, $\theta$ and $K$ were chosen on the original instances, and the sensitivity to $\rho$, $\sigma$, the fraction of least loaded bins, $K$, $\theta$ and $\tau$ is reported in Section~\ref{sec:e-ablation}.
+\pend{Decide whether the noise $\sigma$ and the harvest threshold $\theta$ stay in the method. In the sensitivity analysis
+(72 original instances, \cfgfast{}) $\sigma=0$ and $\theta=0.8$ were not worse than the defaults ($-2.0$ bins each, not
+significant), so both could be removed (no noise; harvest the $K$ most loaded distinct loads without threshold). Confirm
+with $\sigma=0$ and with $\theta=0$ on the 240 original instances and on the blind set before removing them.}
+The method is implemented in C++ on top of the
 Metasolver framework, with HiGHS 1.15.1 as the LP and MILP solver; the recombination is
 compiled only when HiGHS is available. The implementation is available at \url{https://github.com/NicoFuentese/Metasolver} (branch \texttt{nico/bpp-mejoras}).
 
 \begin{table}[t]
 \centering
-\caption{Parameters of the method and the values used in all the experiments, except where
-Table~\ref{tab:configs} states otherwise.}
+\caption{Parameters introduced by the method and the values used in all the experiments; the harvest size $K$ and the
+time limits are part of the configurations (Table~\ref{tab:configs}). The parameters of BSG keep the values tuned for the
+container loading problem \citep{Araya2017} and are given in Section~\ref{sec:m-bsg}; the minimum support of 70\% is part
+of the problem (Section~\ref{sec:problem}).}
 \label{tab:params}
 \begin{tabular}{@{}llr@{}}
 \toprule
@@ -497,11 +504,6 @@ Weight increase of the types in the least loaded bins & $\rho$ & $0.3$\\
 Standard deviation of the log-normal noise & $\sigma$ & $0.05$\\
 Fraction of least loaded bins analysed & & $0.1$\\
 Harvest threshold & $\theta$ & $0.95$\\
-Minimum filling of a block & $f_{\min}$ & $0.98$\\
-Maximum number of blocks & $N_{\max}$ & $500$\\
-VCS parameters & $\alpha,\beta,\gamma,q$ & $2.4407,\ 2.2652,\ 0.3896,\ 0.0164$\\
-Initial beam width and children per level & $B,\ C$ & $4,\ 16$\\
-Minimum base support (industrial instances) & & $0.7$\\
 \bottomrule
 \end{tabular}
 \end{table}
