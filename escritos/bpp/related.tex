@@ -2,10 +2,11 @@
 \section{Related work}
 \label{sec:related}
 
-\pend{Statements still to be checked against the full text of the cited article: \citet{Martello2000},
-\citet{Paquay2016}, \citet{Lodi2002}, \citet{Faroe2003}, \citet{Crainic2008}, \citet{Crainic2009},
-\citet{Parreno2010}, \citet{Goncalves2013} (the placement procedure), \citet{Monaci2006}, the single container
-loading references, and the works of the last paragraph, which are described from their abstracts.}
+\pend{The descriptions of \citet{Lodi2002}, \citet{Faroe2003}, \citet{Crainic2008}, \citet{Crainic2009},
+\citet{Parreno2010} and \citet{Goncalves2013} were checked against the reviews of \citet{Zhao2016} and \citet{Mahvash2018},
+not against the original articles (not available). Still unchecked: the single container loading references
+(\citet{Fanslau2010}, \citet{Bortfeldt2013}) and the works of the last paragraph
+(\citet{Osaba2023}, \citet{Ananno2024}, \citet{Burke2011}), described from their abstracts.}
 
 \paragraph{Exact methods and bounds.}
 \citet{Martello2000} introduced the 3D-BPP benchmark, the lower bounds $L_1$ and $L_2$ and a
@@ -15,8 +16,8 @@ Exact methods do not reach the sizes of the benchmark, which is why the comparis
 literature are made between heuristics.
 
 \paragraph{Heuristics and metaheuristics.}
-\citet{Lodi2002} proposed a tabu search framework (TS3), \citet{Faroe2003} a guided local search, \citet{Crainic2008} extreme point-based
-constructive heuristics and \citet{Crainic2009} a two-level tabu search (TS2PACK).
+\citet{Lodi2002} proposed a tabu search framework (TS3) that assigns the boxes to two-dimensional layers, \citet{Faroe2003} a guided local search, \citet{Crainic2008} extreme point-based
+constructive heuristics and \citet{Crainic2009} a two-level tabu search (TS2PACK), whose first level assigns boxes to bins and whose second level arranges the boxes of each bin.
 \citet{Parreno2010} combined GRASP with variable neighbourhood descent (GVND), and
 \citet{Goncalves2013} a biased random key genetic algorithm (BRKGA) with a placement procedure based
 on maximal spaces; BRKGA is the reference most often used for the totals of the benchmark.
@@ -40,47 +41,59 @@ generation over layers with a set covering model and consider vertical support. 
 generation methods the patterns come from a pricing problem built with the dual prices of the master
 problem, and each pricing call is an optimisation problem in itself. Our patterns come from a search
 over box priorities and from the greedy completions inside BSG, and no dual information returns to the
-generator. The duals appear only after the search, to bound the pool and to prune it.
+generator. The duals appear only after the search, to bound the pool and to prune it. Several pool-and-cover
+methods do not use pricing either: the patterns of \citet{Monaci2006}, \citet{Eley2003} and \citet{Che2011} come from
+constructive heuristics, as discussed below.
 
 \paragraph{Single container loading.}
 The loading of one bin is the single container loading problem, for which tree search methods are
-the state of the art \citep{Fanslau2010,Zhu2012,Araya2014,Araya2017,Guesser2026}. BSG
+among the best performing \citep{Fanslau2010,Zhu2012,Araya2014,Araya2017,Guesser2026}. BSG
 \citep{Araya2014,Araya2017} is a beam search guided by a greedy algorithm, with the VCS evaluation
 function; it has been extended to biobjective loading \citep{Araya2020} and to the palletization of air cargo
 into several unit load devices with weight distribution constraints \citep{ArayaULD}, where the devices are
 also loaded one at a time with BSG; there the objective is the volume, the devices are heterogeneous and the
-total volume of the devices is minimised. \citet{Zhao2016} compare
+total volume of the devices is minimised. \citet{Zhao2016} review and compare
 container loading algorithms, and \citet{Bortfeldt2013} review the practical constraints, among them
 vertical support.
 
 \paragraph{Sequential and pattern-based methods for multiple containers.}
 Loading the containers one at a time with an algorithm for one container is the usual approach to the multiple
-container loading problem; \citet{Eley2003} notes that it is the one most often suggested in the literature, and
-\citet{Martello2000} already propose a heuristic that closes one bin before opening the next. Two lines of work are
+container loading problem; \citet{Eley2003} notes that the repeated application of a single container approach is the
+one most often suggested in the literature, and \citet{Lim2012} describe it as one of the two approaches most commonly
+used (the other loads all the containers simultaneously). In the 3D-BPP it appears as the heuristic H2 of
+\citet{Martello2000}, which repeatedly fills a single bin with an approximate single bin filling procedure and removes
+the packed items. \citet{Eley2003} points out its main weakness: large or awkwardly shaped boxes are often left to the
+end, with poor volume utilisation in the last containers, which is the effect that the profits $v^\kappa$ of our
+method address. Two lines of work are
 close to ours. First, \citet{LimZhang2005} and \citet{Lim2012} apply squeaky wheel optimisation
 \citep{Joslin1999} to container loading. Each box type has a priority factor, initially one; in the multiple
 container case the containers are filled one at a time by a layer-building heuristic with a tree search, the value of
 a load is the sum over its boxes of the volume times the priority factor of the type, and after each iteration the
 priority factor of every type is increased by one minus the average volume utilisation of the containers that hold
 its boxes, the unloaded boxes being counted in an assumed extra container. They evaluate on the 47 instances of
-Ivancic et al.\ and on 2800 instances generated from those of Bischoff and Ratcliff, not on the benchmark of
+Ivancic et al.\ and on 2800 instances generated with a framework similar to that of Bischoff and Ratcliff from their classes BR1--BR7, not on the benchmark of
 \citet{Martello2000}. Our construction and squeaky wheel loop follow the same idea, a sequential loader whose
 objective is the volume weighted by a learned factor per type, with three differences: the profits start from
 $v^\kappa$ with $\kappa>1$ instead of the volume, which in our experiments is the largest single effect
 (Section~\ref{sec:e-ablation}); the factors are raised only for the types of the least loaded bins, multiplicatively
 and with noise; and the loader is BSG. Second, \citet{Eley2003} uses a
-single container algorithm to produce alternative loading patterns and selects them with a set partitioning model,
-and \citet{Che2011} formulate the multiple container loading cost minimisation problem as a set cover problem whose
-columns are produced by single container heuristics; \citet{Zhu2012CG} and \citet{Wei2015} generate the columns by
-column generation with prototypes that approximate the pricing solutions. In our method the patterns are those that
-the search builds or explores (the harvest), no pricing problem is solved, and the LP of the pool is used to stop the
-recombination and to fix columns. We evaluate on the three-dimensional bin packing benchmark of \citet{Martello2000}
-and against the methods designed for it.
-\pend{The descriptions of \citet{Eley2003}, \citet{Che2011}, \citet{Zhu2012CG} and \citet{Wei2015} come from their
-abstracts: check them in the full text, in particular which instances \citet{Che2011} and \citet{Wei2015} use
-(whether they report results on the benchmark of \citet{Martello2000}), and which heuristic of \citet{Martello2000}
-fills one bin at a time. Add the references to Ivancic et al.\ (1989) and Bischoff and Ratcliff (1995). State the
-status of \citet{ArayaULD}.}
+single container algorithm, a greedy heuristic inside a tree search, to produce alternative loading patterns:
+every complete solution generated at a node of the tree is inserted as a column of a set partitioning model, which
+CPLEX solves in at most five seconds on the 64 instances of Ivancic et al.\ (47 to 180 boxes, three to five types, with
+rotations); \citet{Che2011} extend that model to a set cover problem with unlimited containers of several types, generate
+the patterns with three strategies and augment them during the search, and evaluate on the 47 instances of Ivancic et al.\
+and on new instances with known optimal solutions. \citet{Zhu2012CG} use column generation, with the single container
+loading problem as the pricing problem and prototype columns that approximate its solutions, and \citet{Wei2015} extend
+that prototype column generation with a goal-driven search and evaluate it on 350 instances with known optimum
+and on new sets derived from industrial data and from the single container instances of Bischoff and Ratcliff. \citet{Monaci2006}
+had already generated the columns of a set covering heuristic by repeating greedy procedures with the items in
+different almost random orders, and solved the covering problem with a Lagrangian heuristic. Our harvest, which keeps the
+loads that the greedy completions of BSG build, follows the idea of \citet{Eley2003}, who keeps those of the tree
+search. What we add is the squeaky wheel loop that varies the profits, so that the patterns differ from one bin to the
+next, the LP of the pool as a stopping rule and for fixing columns, and the evaluation on the benchmark of
+\citet{Martello2000}: \citet{Eley2003}, \citet{Che2011} and \citet{Wei2015} report no results on it.
+\pend{\citet{Zhu2012CG} is still described from the review of \citet{Zhao2016} (get its full text). Add the references to
+Ivancic et al.\ (1989) and Bischoff and Ratcliff (1995). State the status of \citet{ArayaULD}.}
 
 \paragraph{Squeaky wheel optimisation.}
 Squeaky wheel optimisation \citep{Joslin1999} repeats a greedy construction and raises the priority of

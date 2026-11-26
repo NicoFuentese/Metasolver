@@ -269,7 +269,9 @@ pattern $j$. The recombination solves
 \end{align}
 where $x_j$ is the number of bins loaded with pattern $j$. The constraints are covering rather than
 partitioning constraints: a combination of patterns may contain a box type more often than
-demanded, and the surplus boxes are removed afterwards (see the repair step below). Variables are
+demanded, and the surplus boxes are removed afterwards (see the repair step below), as in the set covering
+heuristic of \citet{Monaci2006} and in the set cover formulations for container loading
+\citep{Che2011,Wei2015}. Variables are
 general integers because the same pattern can be used in several bins. When removing a box can make
 a load infeasible, as with vertical support (Section~\ref{sec:m-ext}), \eqref{eq:cover} is
 replaced by the equalities $\sum_j a_{tj}x_j=d_t$ (\emph{partitioning model}); no box is then
