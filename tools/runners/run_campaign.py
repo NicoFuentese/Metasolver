@@ -38,6 +38,7 @@ ap.add_argument("--dir", default=None)
 ap.add_argument("--only", default=None, help="solo estas instancias (ids como c1_150_5, o nombre de archivo en --set flat)")
 ap.add_argument("--exe", default=None)
 ap.add_argument("--keep-sol", action="store_true", help="conservar las soluciones (por defecto se borran tras validar)")
+ap.add_argument("--vsupport", default="0.7", help="fraccion de apoyo que el validador exige en --set industrial (0.7 por defecto; 'none' = solo geometria)")
 a = ap.parse_args()
 
 config.lower_priority()
@@ -91,7 +92,8 @@ def run(jid, f, sargs, vargs, tag, args):
             fh.write("%s %s: %s %s\n" % (jid, tag, p.stdout[-300:].strip(), p.stderr[-300:].strip()))
         return None
     extra = list(vargs) + (["--rot"] if "--rot" in args.split() else [])
-    if a.kind == "industrial": extra += ["--support", "0.7"]
+    if a.kind == "industrial":
+        if a.vsupport != "none": extra += ["--support", a.vsupport]
     elif "--support" in args.split(): extra += ["--support", "0.7"]
     v = config.validate(f, sol, extra)
     ml = " ".join(l for l in p.stdout.split("\n") if l.startswith("milp"))

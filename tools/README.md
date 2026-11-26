@@ -9,7 +9,6 @@ tools/
   instances/                   generadores y conversores de instancias
     gen_mpv_sets.py            conjuntos MPV nuevos con semillas registradas: blind2 (128) y large (36)
     convert_instance_cg.py     Instance_CG (Elhedhli, Gzara y Yildiz) -> formato BSG_BPP, pallet 1200x800x2055 mm
-    gen_industrial_new.py      conjuntos industriales nuevos (nb_: bootstrap de Instance_CG; nc_: catálogo products.csv)
   runners/
     run_campaign.py            corre varias configuraciones por instancia en paralelo, valida cada solución y escribe un CSV
   chains/
@@ -51,6 +50,7 @@ según la configuración); una fila con `valid=False` o `ERROR` nunca debe entra
 | `an_rot.py` | `rot_orig`, `rot_cls23` | rotación frente a Mahvash CG y BRKGA, por celda y por tamaño |
 | `an_blind.py` | `blind2rep` | segundo conjunto ciego: harvest, MILP con objetivo frente al simple, cota LP |
 | `an_ind.py` | `ind_large`, `ind_small` | industrial con apoyo ≥ 70 % frente a LCGA |
+| `an_ind_extra.py` | `ind_kappa`, `ind_support` | tiempo por contenedor y κ al mismo tiempo; costo de los criterios de apoyo (con `support_stats.py`) |
 | `an_extra.py` | `rotctl`, `rotctl23`, `qharv`, `large` | controles de squeaky wheel con rotación a igual tiempo y F4 con rotación, Quality con harvest, escala n=500/1000 (usa las semillas e instancias disponibles, sirve con campañas a medias) |
 | `an_cells.py` | `orig`, `quality`, `cls23_fixed` | celdas frente a BRKGA (comparación estricta con `TOL=0.0001`; el paper usa la estricta) |
 

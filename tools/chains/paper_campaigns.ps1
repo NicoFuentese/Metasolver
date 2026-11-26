@@ -63,6 +63,11 @@ $C = [ordered]@{
                       "S05_60|-T 60 -t 0.5 $b", "P05_60|-T 60 -t 0.5 --harvest 10 --milp 30 --partition $b") }
     ind_small   = @{ set = "industrial"; dir = "cg"; ns = "50,100,150,200"; cfgs = @("Imp|-T 30 --swo_frac 0.3 --scratch --improve_time 2 $b", "C2|--no_improve -t 2 $b",
                       "S05|-T 10 -t 0.5 $b", "P05|-T 10 -t 0.5 --harvest 10 --milp 20 --partition $b") }
+    ind_kappa   = @{ set = "industrial"; dir = "cg"; ns = "500,1000,1500,2000"; cfgs = @("T|--no_improve --kappa 1 -t 2 --support area",
+                      "D|--no_improve --kappa 2 -t 0.02 --support area", "E|--no_improve --kappa 2 -t 2 --support area") }
+    ind_support = @{ set = "industrial"; dir = "cg"; ns = "500,1000,1500,2000"; vsupport = "none"; keep = $true; cfgs = @("None|--no_improve --kappa 1 -t 2 --support none",
+                      "A50|--no_improve --kappa 1 -t 2 --support area --min_overlap 0.5", "A70|--no_improve --kappa 1 -t 2 --support area",
+                      "A85|--no_improve --kappa 1 -t 2 --support area --min_overlap 0.85", "Full|--no_improve --kappa 1 -t 2 --support full") }
 }
 
 if ($List) { $C.Keys | ForEach-Object { "{0,-12} {1} configuraciones" -f $_, $C[$_].cfgs.Count }; return }
@@ -76,6 +81,8 @@ foreach ($name in $todo) {
         if ($c.insts)   { $a += @("--insts", $c.insts) }
         if ($c.ns)      { $a += @("--ns", $c.ns) }
         if ($c.dir)     { $a += @("--dir", (Join-Path $Instances $c.dir)) }
+        if ($c.vsupport) { $a += @("--vsupport", $c.vsupport) }
+        if ($c.keep)    { $a += "--keep-sol" }
         $exe = if ($c.exe -eq "sens") { $SensExe } else { $Exe }
         if ($exe) { $a += @("--exe", $exe) }
         $a += $c.cfgs
