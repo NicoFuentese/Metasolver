@@ -39,9 +39,8 @@ remain below 0.01 after the Holm correction. The other tests are exploratory. Ev
 independent program for containment, overlap, completeness and, in the industrial instances, support. The code, the
 instance generators and the scripts are in the repository of the project (Section~\ref{sec:m-params}); the options of
 each configuration are in Table~\ref{tab:e-commands}.
-\pend{Add the result files of the experiments to the repository or to a supplementary file (today they are outside the
-repository), with the commit and the checksum of the executable of each campaign (\texttt{run\_campaign.py} does not
-record them, and deletes the solutions unless \texttt{--keep-sol} is given).}
+The result files of every campaign (one file per campaign and seed), with the checksum of the executable that produced
+them, are in the directory \texttt{results/bpp/campaigns} of the repository.
 
 \paragraph{Literature.}
 We compare with the totals published by \citet{Mahvash2018} (column generation), \citet{Goncalves2013} (BRKGA, together
@@ -283,9 +282,18 @@ With the same time, the squeaky wheel loop is worse than the construction alone 
 $p=0.029$), because here the time per bin matters more than the number of constructions, and with 60 s it only ties
 (Table~\ref{tab:e-indsw}). The partitioning recombination did not improve any of the 960 runs in which we used it, and
 the LP or the MILP proved in all of them that the pool held nothing better. On the smaller instances ($n<500$) the
-squeaky wheel loop is 3.8\% below LCGA in 1.4 s per instance, and over the 32 cells our total is 5.7\% below. Requiring
-70\% support costs 2.1\% of the bins with respect to no requirement, and stricter criteria cost much more
-(Table~\ref{tab:e-support}).
+squeaky wheel loop is 3.8\% below LCGA in 1.4 s per instance, and over the 32 cells our total is 5.7\% below.
+
+Two choices explain most of the result for $n\ge 500$ (Table~\ref{tab:e-indkappa}). The time per bin matters most: with
+$\kappa=2$, going from $\tau=0.02$ s, the value that we use for MPV, to $\tau=2$ s removes 92.7 bins of 825.7 (11\%;
+better in 73 instances, worse in none). At equal time, $\kappa=1$ is still 11.0 bins (1.5\%) below $\kappa=2$ ($p=0.001$,
+better in 14 instances and worse in one; $-11$, $-12$ and $-10$ in the three seeds), so here the exponent that is best
+for MPV is not the best one. With about 120 boxes per bin, filling the bin matters more than loading the large boxes first.
+
+Requiring 70\% support costs 14.7 bins (2.1\%) with respect to no requirement ($p=10^{-4}$), whereas without any
+requirement only 77.3\% of the boxes have 70\% support, so the requirement has to be imposed. Lowering it to 50\% saves
+1.7 bins more (not significant). Raising it is costly: 85\% adds 66.3 bins (9.2\%) and full support adds 575.7 (80\%),
+for a mean support of 95.0\% and 100\% instead of 91.4\% (Table~\ref{tab:e-support}).
 
 \subsection{Discussion and limits of the evidence}
 \label{sec:e-discussion}

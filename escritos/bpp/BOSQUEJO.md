@@ -1,4 +1,4 @@
-# Paper de bin packing 3D (BSG_BPP): estado del borrador
+﻿# Paper de bin packing 3D (BSG_BPP): estado del borrador
 
 Registro de la estructura, la tesis y las decisiones del paper de `escritos/bpp` (`main.tex`; el PDF compilado es `main.pdf`).
 Los pendientes del texto están marcados con `\pend{}` y aparecen en la lista "Pending items" al inicio del PDF.
@@ -41,5 +41,4 @@ o de partición (con apoyo) recombina el pool. El LP del pool indica cuándo no 
 
 - Verificar `related.tex` contra los PDF de los trabajos citados (varias descripciones salen de resúmenes).
 - Decidir dónde se publican los archivos de resultados (repositorio, Zenodo o suplemento) y escribirlo en la declaración de disponibilidad.
-- Actualizar el costo de los criterios de apoyo y el efecto de κ con las campañas industriales sobre Instance_CG (`ind_kappa`, `ind_support`).
 - Comprobar las entradas de `references.bib` escritas de memoria (DOI, páginas).

@@ -123,16 +123,15 @@ Squeaky wheel alone, $T=26$ s & $3893.0\pm 1.0$ & 25.3 & --- & --- & --- & --- &
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
-\caption{Additional industrial instances (construction alone, support 70\%, one run per instance): total bins. LB: lower bound. Resampled: 48 instances; catalogue: 24 instances.}
-\label{tab:e-indnew}
-\begin{tabular}{@{}lrrr@{}}
+\caption{Time per bin $\tau$ and profit exponent $\kappa$ on the industrial instances ($n\ge 500$, 80 instances, construction alone, support 70\%): total bins (mean and standard deviation over three seeds) and mean time per instance. The lower bound sums to 651.}
+\label{tab:e-indkappa}
+\begin{tabular}{@{}lrr@{}}
 \toprule
-Configuration & Resampled & Catalogue & Time (s)\\
+Configuration & Bins & Time (s)\\
 \midrule
-$\kappa=1$, $\tau=2$ s & 438 & 233 & 18.4--19.1\\
-$\kappa=2$, $\tau=0.02$ s (default for MPV) & 497 & 264 & 0.3--0.7\\
-$\kappa=2$, $\tau=2$ s & 438 & 241 & 18.5--20.0\\
-LB & 390 & 216 & \\
+$\kappa=1$, $\tau=2$ s (used) & $722.0\pm 1.0$ & 18.0\\
+$\kappa=2$, $\tau=2$ s & $733.0\pm 1.0$ & 18.4\\
+$\kappa=2$, $\tau=0.02$ s (default for MPV) & $825.7\pm 1.2$ & 0.5\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -222,17 +221,17 @@ $p$ (Wilcoxon, per seed) & 0.0003 & 0.021 & 0.035 & & \\
 \begin{table}[t]
 \centering
 \small\setlength{\tabcolsep}{4pt}
-\caption{Criteria of support (industrial instances, $n\ge 500$, 80 instances, construction alone, $\kappa=1$, $\tau=2$ s, one run per instance). Support: percentage of the base area resting on boxes.}
+\caption{Criteria of support (industrial instances, $n\ge 500$, 80 instances, construction alone, $\kappa=1$, $\tau=2$ s): total bins (mean and standard deviation over three seeds), mean time per instance, and support of the solutions (means over the seeds). Support: percentage of the base area resting on boxes.}
 \label{tab:e-support}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 Criterion & Bins & Time (s) & Mean support & Boxes with $\ge 70\%$ & Boxes fully supported\\
 \midrule
-None & 708 & 17.3 & 80.4\% & 77.3\% & 28.3\%\\
-50\% of the base & 720 & 17.9 & 88.7\% & 86.9\% & 32.6\%\\
-70\% of the base (used) & 723 & 18.3 & 91.4\% & 100\% & 33.0\%\\
-85\% of the base & 793 & 19.6 & 95.2\% & 100\% & 37.2\%\\
-Full support & 1303 & 32.1 & 100\% & 100\% & 100\%\\
+None & $707.0\pm 1.7$ & 17.2 & 80.2\% & 77.3\% & 26.8\%\\
+50\% of the base & $720.0\pm 0.0$ & 17.6 & 88.8\% & 87.4\% & 30.2\%\\
+70\% of the base (used) & $721.7\pm 1.2$ & 18.0 & 91.4\% & 100\% & 30.7\%\\
+85\% of the base & $788.0\pm 1.7$ & 19.2 & 95.0\% & 100\% & 34.8\%\\
+Full support & $1297.3\pm 2.5$ & 31.6 & 100\% & 100\% & 100\%\\
 \bottomrule
 \end{tabular}
 \end{table}
