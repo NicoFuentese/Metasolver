@@ -132,7 +132,7 @@ without it the program compiles and works as before but `--milp` gives an error.
 * A single instance can also be given as `n L W H` followed by one line `l w h` per box.
 * **Data that is not in the repository.** The industrial instances (`Instance_CG`, the collection that accompanies
   Elhedhli, Gzara and Yildiz 2019), the product catalogue (`products.csv`) and the other collections that the
-  team uses are in the shared Google Drive of the team; ask the authors for access. Place
+  team uses are in the shared Google Drive of the team (https://drive.google.com/drive/folders/1Zio_xcEqKU9dFtCF_993NUQHiYxorrf7?usp=drive_link); ask the authors for access if you cannot open it. Place
   them outside the repository (for example in a `Datasets` directory next to it) and point the tools to them
   with `BPP_DATA` (see `tools/README.md`). `tools/instances/convert_instance_cg.py` converts `Instance_CG`
   to the input format of `BSG_BPP` (pallet 1200x800x2055 mm), and `tools/instances/gen_mpv_sets.py`

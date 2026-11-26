@@ -24,7 +24,7 @@ tools/
 - `BSG_BPP` compilado con HiGHS (opción `--milp`); Python 3 con `numpy` y `scipy` para el análisis.
 - En Windows, la carpeta `bin` de MSYS2/UCRT64 con las DLL de g++ (`BPP_MSYS`, por defecto `C:\msys64\ucrt64\bin`); sin ella el `.exe` termina en silencio.
 - **Datos que no están en el repo.** Las instancias industriales (`Instance_CG`), el catálogo `products.csv` y las demás colecciones del equipo están en el
-  Drive compartido del equipo (pedir acceso a los autores). Se descargan fuera del repo y `BPP_DATA` apunta a esa carpeta (con `Instance_CG/` y `products.csv`).
+  Drive compartido del equipo (https://drive.google.com/drive/folders/1Zio_xcEqKU9dFtCF_993NUQHiYxorrf7?usp=drive_link; pedir acceso a los autores si no se puede abrir). Se descargan fuera del repo y `BPP_DATA` apunta a esa carpeta (con `Instance_CG/` y `products.csv`).
   Las instancias MPV originales sí están en el repo (`problems/clp/benchs/MPV/original`).
 
 ## Flujo
