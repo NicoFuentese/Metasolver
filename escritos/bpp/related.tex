@@ -46,7 +46,15 @@ generator. The duals appear only after the search, to bound the pool and to prun
 The loading of one bin is the single container loading problem, for which tree search methods are
 the state of the art \citep{Fanslau2010,Zhu2012,Araya2014,Araya2017,Guesser2026}. BSG
 \citep{Araya2014,Araya2017} is a beam search guided by a greedy algorithm, with the VCS evaluation
-function; it has been extended to biobjective loading \citep{Araya2020}. \citet{Zhao2016} compare
+function; it has been extended to biobjective loading \citep{Araya2020} and to the palletization of air cargo
+into several unit load devices with weight distribution constraints \citep{ArayaULD}, where the devices are
+also loaded one at a time with BSG; there the objective is the volume, the devices are heterogeneous and the
+total volume of the devices is minimised. Loading the bins one at a time with an algorithm for one container
+is a natural scheme for multiple container problems; what we add is the change of objective that makes it
+competitive for bin packing and the recombination of the bins.
+\pend{Review the literature on sequential approaches that load one container at a time with a single
+container algorithm (multiple container loading and 3D-BPP) and cite the closest ones here; state the status
+of \citet{ArayaULD} (submitted, under review or published).} \citet{Zhao2016} compare
 container loading algorithms, and \citet{Bortfeldt2013} review the practical constraints, among them
 vertical support.
 

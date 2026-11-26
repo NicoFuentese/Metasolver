@@ -262,7 +262,9 @@ compared with those of the other experiments.
 As a check, we ran six of its configurations on the machine of the other experiments (three seeds). The totals are 7385.0 for the construction with $\kappa=2$, 7604.3 with $\kappa=1$, 7270.0 for the loop with $T=20$ s,
 7306.7 for the loop without learning ($\rho=0$), 7256.3 with the recombination and 7252.0 with the harvest added. They differ from the corresponding totals of Table~\ref{tab:e-ablation} by $+1.7$, $+10.3$, $-2.3$, $+0.3$, 0.0 and $-2.0$ bins, so
 the two machines agree except for the construction with $\kappa=1$. The harvest lowers the total by 4.3 bins on this machine
-($p=0.03$ on the means of the instances; significant in only one of the three seeds).
+($p=0.03$ on the means of the instances; significant in only one of the three seeds). With the budget of \cfgbal{} the effect of the
+harvest is therefore small (2 to 4 bins) and not robust across machines; with the shorter budget of \cfgfast{}
+it is clear (Table~\ref{tab:e-harvest}).
 
 \begin{table}[t]
 \centering
@@ -419,7 +421,7 @@ instances of classes 3 and 4 with $n=1500$ and 2000); the choice is not independ
 \paragraph{Comparison with LCGA.}
 Table~\ref{tab:e-ind} gives the mean number of bins per cell for $n\ge 500$ (five instances, three seeds) against the values of \citet{Elhedhli2019} (Table~9 of their article). The total over the 16 cells is 144.4 bins against 153.6 (6.0\% fewer):
 we are below in 11 cells, equal in 5 and above in none (exact sign test, $p=0.0010$; the cells share a configuration and a choice of parameters, so the test is descriptive). The three seeds give 723, 721 and 722 bins in the 80 instances ($722.0\pm 1.0$;
-the construction is deterministic except for the clock),. The time per instance is 17.9 s on average (median 17.4 s, maximum 32.9 s), against 608 s for LCGA;
+the construction is deterministic except for the clock). The time per instance is 17.9 s on average (median 17.4 s, maximum 32.9 s), against 608 s for LCGA;
 that is 34 times less in raw time and about 15 times after a factor of 2.27 between the single-thread ratings of the two processors \citep{PassMark} (3741 for the i5-14400 and 1649 for the i7-5500U; the factor is approximate).
 
 \begin{table}[t]
@@ -513,8 +515,8 @@ The blind set was not used to take any decision, and neither were classes 2 and 
 In the industrial instances the construction alone, with the 70\% support imposed on every box, uses fewer bins than the totals that \citet{Elhedhli2019} report.
 
 \paragraph{Comparison with the literature.}
-The totals of the other methods are taken from their articles. They come from other machines and from an unknown number of runs, and \citet{Mahvash2018} do not report times for the experiments without rotation. We normalised the times only
-in the industrial comparison, and with a processor rating that is approximate (Section~\ref{sec:e-ind}), so the statements about time with respect to other methods are indicative. We could not apply statistical tests against the literature because the results per instance
+The totals of the other methods are taken from their articles. They come from other machines and from an unknown number of runs, and \citet{Mahvash2018} do not report times for the experiments without rotation. We normalised the times with an approximate processor rating
+(Sections~\ref{sec:e-setup} and~\ref{sec:e-ind}), so the statements about time with respect to other methods are indicative. We could not apply statistical tests against the literature because the results per instance
 are not published. The total of \citet{Mahvash2018} remains below the shorter configurations without rotation. \cfgqual{} is 2.7 bins below it, with a standard deviation of 1.2 bins over seeds and a different machine, and for that reason we do not claim that the method improves the state of the art in that setting.
 Because the time limits are wall-clock limits, the totals of a configuration can vary by a few bins with the load of the machine, and the comparisons between configurations are therefore made under the same conditions and paired by instance.
 

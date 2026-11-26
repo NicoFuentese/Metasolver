@@ -2,7 +2,10 @@
 \section{Conclusions}
 \label{sec:conclusions}
 
-We presented a method for the three-dimensional bin packing problem that generates bin patterns with a
+We showed that a beam search for the single container loading problem becomes a strong basis for the
+three-dimensional bin packing problem when it is guided by profits per box type instead of volumes: in a single
+construction this change alone saves 2.8\% of the bins, and the parameters of the beam search need no retuning.
+On this basis we presented a method that generates bin patterns with the
 single-bin loader inside a squeaky wheel loop over the profits of the box types, enlarges the pool with
 the loads that the loader explores and discards, and recombines the pool with a set covering model, or
 with a set partitioning model when the bins must respect vertical support. The LP relaxation of the
