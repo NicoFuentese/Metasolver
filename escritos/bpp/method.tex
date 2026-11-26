@@ -486,7 +486,9 @@ of bins as cost and blocks of 24 instances that cover all the cells; the scenari
 include $\sigma=0$ and $K=0$, so that the tuning decides whether the noise and the harvest stay; the parameters that turn
 out insensitive are then fixed and not presented as tunable. Then evaluate the tuned configuration against the current one
 on the original instances and the blind set, and rewrite this paragraph (today the values were chosen by hand on the
-original instances).}
+original instances). Order: run it after the method is frozen (the comparison with \citet{Lim2012} and any change to
+the components) and before the definitive campaigns, since the tuned values change every result table; if the tuned
+values differ from the current ones, the campaigns must be repeated with them.}
 The method is implemented in C++ on top of the
 Metasolver framework, with HiGHS 1.15.1 as the LP and MILP solver; the recombination is
 compiled only when HiGHS is available. The implementation is available at \url{https://github.com/NicoFuentese/Metasolver} (branch \texttt{nico/bpp-mejoras}).
